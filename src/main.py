@@ -7,7 +7,7 @@ import sys
 sys.path.append("../libs/spotipy")  # spotipy module
 sys.path.append("../libs/word_cloud")  # word_cloud module
 sys.path.append("..")
-from libs.spotipy import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
+import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 from config.config import spotify_ids  # Spotify API id's
 
 # Global Vars
@@ -44,6 +44,8 @@ def get_top_artists(limit=10, time_range="long_term"):
         top_list.append(x["name"])
     return top_list
 
+
+# TODO: Add more methods
 
 #  Call the above functions below
 print(get_top_tracks(limit=10, time_range="short_term"))
