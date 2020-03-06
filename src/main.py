@@ -1,19 +1,49 @@
-import spotipy # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
-import config.config as config
-
-# TODO: Rewrite the above import statements so that "main.py" can be called from the command line without errors of
-#  missing modules
 # song-alyze
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 3/4/20
+# LAST MODIFIED: 3/5/20
 
-# Example on how to prompt Spotify user for authorization access to this program
+import sys
+# Needed for all local modules used
+sys.path.append("../libs/spotipy")  # spotipy module
+sys.path.append("../libs/word_cloud")  # word_cloud module
+sys.path.append("..")
+from libs.spotipy import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
+from config.config import spotify_ids  # Spotify API id's
+
+# Global Vars
 # Various scopes to get access to. View scopes here: https://developer.spotify.com/documentation/general/guides/scopes/
-spotify_scopes = "user-top-read playlist-read-private user-read-recently-played"
-# TODO: See if pasting URL works in command line. Currently does not work in pycharm since ide console recognizes the
-#  link
-auth_token = spotipy.prompt_for_user_token(username="",scope=spotify_scopes, client_id=config.spotify_ids["client_id"], client_secret=
-config.spotify_ids["client_secret"], redirect_uri="http://localhost/")
+SPOTIFY_SCOPES = "user-top-read playlist-read-private user-read-recently-played"  # Should not be changed after this line
+# Authorization token specific to the users account
+AUTH_TOKEN = spotipy.prompt_for_user_token(username="", scope=SPOTIFY_SCOPES, client_id=spotify_ids["client_id"], client_secret=spotify_ids["client_secret"], redirect_uri="http://localhost/")
 
-sp = spotipy.Spotify(auth=auth_token)
-print(sp.current_user_top_tracks())
+#  If AUTH_TOKEN is legit...
+if AUTH_TOKEN:
+    # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
+    global sp
+    sp = spotipy.Spotify(auth=AUTH_TOKEN)
+else:
+    print("Error with AUTH_TOKEN")
+
+
+# Function to get the users top tracks. Limit is the number of tracks to get,
+# time_range is what period of time to use: short_term, medium_term, or long_term
+def get_top_tracks(limit=10, time_range="long_term"):
+    dict = sp.current_user_top_tracks(limit=limit, time_range=time_range)
+    top_list = list()
+    for x in dict["items"]:
+        top_list.append(x["name"])
+    return top_list
+
+
+# Function to get the users top artists. Limit is the number of tracks to get,
+# # time_range is what period of time to use: short_term, medium_term, or long_term
+def get_top_artists(limit=10, time_range="long_term"):
+    dict = sp.current_user_top_artists(limit=limit, time_range=time_range)
+    top_list = list()
+    for x in dict["items"]:
+        top_list.append(x["name"])
+    return top_list
+
+
+#  Call the above functions below
+print(get_top_tracks(limit=10, time_range="short_term"))
