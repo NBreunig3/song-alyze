@@ -54,7 +54,6 @@ Sections:
         .gitignore
         .gitmodules
         LICENSE
-        PROJECT_OUTLINE.txt
         README.md
 
     Other Notes: This is subject to change if we add more functionality such as using another API or using GUI.
