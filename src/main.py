@@ -1,7 +1,7 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 3/27/20
+# LAST MODIFIED: 3/29/20
 
 import spotify  # Local import of spotify.py
 
@@ -11,12 +11,13 @@ def main():
     top_artists = spotify.get_top_artists(limit=10, time_range="short_term")
     recommended_artists = spotify.get_recommended_artists(time_range="short_term")
 
+    print("Top Tracks")
     for i in range(len(top_tracks)):
         print("{}. {}".format(i+1, top_tracks[i]["name"]))
-    print("")
+    print("Top Artists")
     for i in range(len(top_artists)):
         print("{}. {}".format(i+1, top_artists[i]["name"]))
-    print()
+    print("Recommended Artists")
     for i in range(len(recommended_artists)):
         print("{}. {}".format(i+1, recommended_artists[i]["name"]))
 

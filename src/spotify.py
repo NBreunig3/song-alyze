@@ -1,6 +1,6 @@
 # spotify.py
 # This is where we will write our methods using spotipy to interact with the Spotify API
-# LAST MODIFIED: 3/27/20
+# LAST MODIFIED: 3/29/20
 
 import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 import config  # Spotify API id's
@@ -48,17 +48,14 @@ def get_top_artists(limit=10, time_range="long_term"):
 def create_playlist(list, name="Custom Playlist", public_playlist=False, collaboritive_playlist=False, description="Custom Playlist built by song-alyze"):
     playlist = sp.user_playlist_create(user=sp.current_user()["id"], name=name, public=public_playlist, description=description)
     track_ids = [track["id"] for track in list]  # Did I win the admiration of my peers lol
-    sp.user_playlist_add_tracks(user=sp.current_user()["id"] , playlist_id=playlist["id"], tracks=track_ids)
-    
+    sp.user_playlist_add_tracks(user=sp.current_user()["id"], playlist_id=playlist["id"], tracks=track_ids)
+
+
 # Function to get recommended artists based on user's top artist.
 # time_range is the period to get the top artist from--short_term, medium_term, or long_term
 # Returns a list of dictionaries
 def get_recommended_artists(time_range="long_term"):
-    top_artist = ""
-    artist = sp.current_user_top_artists(limit=1, offset=0, time_range=time_range)
-    for a in artist["items"]:
-        top_artist = a["id"]
-    recommend = sp.artist_related_artists(top_artist)
+    recommend = sp.artist_related_artists(get_top_artists(1, time_range))
     new_artists = []
     for r in recommend['artists']:
         new_artists.append({"name": r["name"], "id": r["id"], "type": r["type"], "popularity": r["popularity"]})
