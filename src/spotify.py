@@ -49,3 +49,17 @@ def create_playlist(list, name="Custom Playlist", public_playlist=False, collabo
     playlist = sp.user_playlist_create(user=sp.current_user()["id"], name=name, public=public_playlist, description=description)
     track_ids = [track["id"] for track in list]  # Did I win the admiration of my peers lol
     sp.user_playlist_add_tracks(user=sp.current_user()["id"] , playlist_id=playlist["id"], tracks=track_ids)
+    
+# Function to get recommended artists based on user's top artist.
+# time_range is the period to get the top artist from--short_term, medium_term, or long_term
+# Returns a list of dictionaries
+def get_recommended_artists(time_range="long_term"):
+    top_artist = ""
+    artist = sp.current_user_top_artists(limit=1, offset=0, time_range=time_range)
+    for a in artist["items"]:
+        top_artist = a["id"]
+    recommend = sp.artist_related_artists(top_artist)
+    new_artists = []
+    for r in recommend['artists']:
+        new_artists.append({"name": r["name"], "id": r["id"], "type": r["type"], "popularity": r["popularity"]})
+    return new_artists
