@@ -10,6 +10,7 @@ def main():
     top_tracks = spotify.get_top_tracks(limit=10, time_range="short_term")
     top_artists = spotify.get_top_artists(limit=10, time_range="short_term")
     recommended_artists = spotify.get_recommended_artists(time_range="short_term")
+    in_library = spotify.in_library([top_tracks[0]["id"]])
 
     print("Top Tracks")
     for i in range(len(top_tracks)):
@@ -20,6 +21,9 @@ def main():
     print("Recommended Artists")
     for i in range(len(recommended_artists)):
         print("{}. {}".format(i+1, recommended_artists[i]["name"]))
+    print("Is {} (your top track) saved in your library?".format(top_tracks[0]["name"]))
+    print(in_library[0]["in_lib"])
+    
 
 
 if __name__ == "__main__":

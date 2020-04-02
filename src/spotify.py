@@ -6,7 +6,7 @@ import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2
 import config  # Spotify API id's
 
 # Various scopes to get access to. View scopes here: https://developer.spotify.com/documentation/general/guides/scopes/
-__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public"  # Should not be changed after this line
+__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public user-library-read"  # Should not be changed after this line
 # Authorization token specific to the users account
 __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOPES__, client_id=config.spotify_ids["client_id"],
                                            client_secret=config.spotify_ids["client_secret"],
@@ -55,8 +55,20 @@ def create_playlist(list, name="Custom Playlist", public_playlist=False, collabo
 # time_range is the period to get the top artist from--short_term, medium_term, or long_term
 # Returns a list of dictionaries
 def get_recommended_artists(time_range="long_term"):
-    recommend = sp.artist_related_artists(get_top_artists(1, time_range))
+    top = get_top_artists(limit=1, time_range=time_range)[0]["id"]
+    recommend = sp.artist_related_artists(top)
     new_artists = []
     for r in recommend['artists']:
         new_artists.append({"name": r["name"], "id": r["id"], "type": r["type"], "popularity": r["popularity"]})
     return new_artists
+
+# Function to check if a song is already saved in the currentl user's library,
+# useful for checking to see if a user likes/has heard a song before
+# songs is a list of one or more song ids
+# Returns list of dictions with song name, id, and boolean true or false indicating if the song is saved in the user's library
+def in_library(songs):
+    saved_or_not = sp.current_user_saved_tracks_contains(songs)
+    out = []
+    for i in range(len(songs)):
+        out.append({"name": sp.track(songs[i]), "id": songs[i], "in_lib": saved_or_not[i]})
+    return out
