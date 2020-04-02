@@ -1,6 +1,6 @@
 <pre>
     Project Outline
-LAST MODIFIED: 3/29/20
+LAST MODIFIED: 4/2/20
 Next Project Update Date: 4/3
 
 Sections:
@@ -11,8 +11,9 @@ Sections:
     E: Current Goals
     F: Future Goals
     G: Using GIT
-    H: How to run
-    I: Misc
+    H: Git Submodules
+    I: How to run
+    J: Misc / Debugging
 
 // Section A: Our Goal / Project Writeup
     Discover your true vibe
@@ -45,6 +46,8 @@ Sections:
     song-alyze/
         libs/
             spotipy/
+            word_cloud/
+            matplotlib/
             __init__.py
         src/
             .cache-
@@ -64,8 +67,17 @@ Sections:
     This is the project folder.
 
     libs/
-    This folder is to store the libraries (API's) we are going to use in this project. Right now this may be empty since
-    I am still trying to get the import statements and Git Submodules to work correctly.
+    This folder is to store the libraries (API's) we are going to use in this project. If the folders (libraries) are empty
+    go to Section H: Git Submodules to fix. 
+        
+        libs/matplotlib
+        This library is used to save our generated word cloud.
+        
+        libs/spotipy
+        Spotify API 
+        
+        libs/word_cloud
+        Word cloud generator
 
     src/
     This folder contains all of our .py files we will be dealing with.
@@ -122,9 +134,7 @@ Sections:
      (Look in code for links regarding API reference points and the spotipy API reference)
 
 // Section F: Future Goals
-    -Include the wordcloud API in src/wordcloud.py
     -Include the Genius API and Dictionary API in src/lyric_analyzer.py
-    -Possibly create a class instead of using a dictionary for each playlist, artist, song (not sure it would be beneficial)
     -GUI
 
     Edit this document and add more if needed!
@@ -217,13 +227,26 @@ Sections:
           your current modifications), and then there is potential code loss.
         - When running these commands make sure your terminal is in the project directory (ex. "../song-alyze/"). Make sure you are not
           in any sub directories or elsewhere.
+          
+// Section H: Git Submodules
+    For this project we are using other Python libraries such as "spotipy" and "word_cloud". In order to include these in our own
+    local project we use another feature of Git called submodules. This allows us to have the library in our local directory while
+    being connected to its corresponding GitHub repository. This makes it easy to update the libraries if they make changes on
+    their end. If your libs/<library_name> folder is blank that means you need to run one of the following commands below. 
+    
+    Command to download library (this only needs to be done once): git submodule update
+    Command to update library (most likely won't use but allows us to directly update the lib from their GitHub repository):
+        git submodule update
+        
+    Note: Notice two commands above are the same. All the command does is fetch new/missing files from the online repo to our
+          local project repo. 
 
-// Section H: How to run
+// Section I: How to run
     The main method is located in src/main.py, so this is the file you should run in the terminal if you choose to run it that way.
     NOTE: When running from the terminal vs in pycharm the import statements may or may not through errors. I am currently
           researching the issue. If you are using pycharm the local imports (imported files we created) should be using the
           "from src..." prefix. If you are running from the terminal then you should omit that prefix and just have "import spotify".
 
-// Section I: Misc
-    I got nothin'
+// Section J: Misc / Debugging
+    Getting errors about imports or libraries missing or misbehaving? See Section H. 
 </pre>
