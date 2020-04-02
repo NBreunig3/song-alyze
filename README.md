@@ -12,7 +12,7 @@ Sections:
     F: Future Goals
     G: Using GIT
     H: Git Submodules
-    I: How to run
+    I: How to run / Requirements
     J: Misc / Debugging
 
 // Section A: Our Goal / Project Writeup
@@ -241,12 +241,17 @@ Sections:
     Note: Notice two commands above are the same. All the command does is fetch new/missing files from the online repo to our
           local project repo. 
 
-// Section I: How to run
+// Section I: How to run / Requirements
+    Required Libraries:
+        1. spotipy - Installed locally to libs/
+        BELOW LIBS ARE ONLY NEEDED FOR WORDCLOUD. YOU DON'T NEED THESE FOR NOW (4/2/20)
+        2. matplotlib - Must install from pip
+        3. wordcloud - Must install from pip
+        4. numpy - Must install from pip
+        
+        
     The main method is located in src/main.py, so this is the file you should run in the terminal if you choose to run it that way.
-    NOTE: When running from the terminal vs in pycharm the import statements may or may not through errors. I am currently
-          researching the issue. If you are using pycharm the local imports (imported files we created) should be using the
-          "from src..." prefix. If you are running from the terminal then you should omit that prefix and just have "import spotify".
 
 // Section J: Misc / Debugging
-    Getting errors about imports or libraries missing or misbehaving? See Section H. 
+    Getting errors about imports or libraries missing or misbehaving? See Section H.
 </pre>

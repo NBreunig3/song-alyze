@@ -1,9 +1,3 @@
 [submodule "libs/spotipy"]
 	path = libs/spotipy
 	url = https://github.com/plamere/spotipy
-[submodule "libs/word_cloud"]
-	path = libs/word_cloud
-	url = https://github.com/amueller/word_cloud
-[submodule "libs/matplotlib"]
-	path = libs/matplotlib
-	url = https://github.com/matplotlib/matplotlib

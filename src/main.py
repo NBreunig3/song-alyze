@@ -6,10 +6,7 @@
 # To make sure Python recognizes our libraries
 import sys
 sys.path.append("../libs/spotipy/")
-sys.path.append("../libs/word_cloud/")
-sys.path.append("../libs/matplotlib/lib/")
 import spotify  # Local import of spotify.py
-import word_cloud_gen  # Local import of word_cloud_gen.py
 
 
 def main():
@@ -38,10 +35,6 @@ def main():
     print("\nRecommended Tracks")  # Recommended Tracks
     for track in rec_tracks:
         print("  \"{}\" by {}".format(track["name"], track["artist"]))
-
-    # Top Artists Word Cloud
-    artists = " ".join(top_artists)
-    word_cloud_gen.generate(artists)
 
 
 if __name__ == "__main__":
