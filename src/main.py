@@ -1,12 +1,11 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/2/20
+# LAST MODIFIED: 4/7/20
 
 # To make sure Python recognizes our libraries
-import sys
-sys.path.append("../libs/spotipy/")
 import spotify  # Local import of spotify.py
+import word_cloud_gen  # Local import of word_cloud_gen.py
 
 
 def main():
@@ -35,6 +34,9 @@ def main():
     print("\nRecommended Tracks")  # Recommended Tracks
     for track in rec_tracks:
         print("  \"{}\" by {}".format(track["name"], track["artist"]))
+
+    # Make a wordcloud based on your top artists
+    word_cloud_gen.generate(" ".join([a["name"].replace(" ", "") for a in top_artists]))
 
 
 if __name__ == "__main__":
