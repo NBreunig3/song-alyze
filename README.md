@@ -1,6 +1,6 @@
 <pre>
 Project Outline
-LAST MODIFIED: 4/7/20
+LAST MODIFIED: 4/8/20
 Next Project Update Date: 4/10
 
 Sections:
@@ -204,9 +204,15 @@ Sections:
         1. spotipy - Install from pip using "pip install spotipy"
         2. matplotlib - Install from pip using "pip install spotipy"
         3. wordcloud - Install from pip using "pip install wordcloud"
+            If your wordcloud didn't install from pip, this seems to be a bug on Windows 10. 
+            Follow the below steps thanks to @iturki from https://github.com/amueller/word_cloud/issues/134
+            
+            1. Download the .whl file compatible with your Python version and your windows distribution (32bit or 64bit)
+            from here (https://www.lfd.uci.edu/~gohlke/pythonlibs/#wordcloud), cd to the file path
+            2. Run this command python -m pip install <filename>
         
     The main method is located in src/main.py, so this is the file you should run in the terminal if you choose to run it that way.
 
 // Section I: Misc / Debugging
-    I got nothin'
+    JSON formatter: https://jsonformatter.curiousconcept.com/, useful for visualizing spotify API response
 </pre>

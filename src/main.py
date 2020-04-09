@@ -1,7 +1,7 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/7/20
+# LAST MODIFIED: 4/8/20
 
 # To make sure Python recognizes our libraries
 import spotify  # Local import of spotify.py
@@ -12,7 +12,7 @@ def main():
     top_tracks = spotify.get_top_tracks(limit=10, time_range="short_term")
     top_artists = spotify.get_top_artists(limit=10, time_range="short_term")
     recommended_artists = spotify.get_recommended_artists(time_range="short_term")
-    in_library = spotify.in_library([top_tracks[0]["id"]])
+    in_library = spotify.in_library([s["id"] for s in top_tracks])
     rec_tracks = spotify.get_recommended_tracks(track_seeds=[x["id"] for x in top_tracks][:5], limit=10)
 
     print("Top Tracks")  # Top Tracks
