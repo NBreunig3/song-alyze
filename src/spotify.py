@@ -58,24 +58,30 @@ def create_playlist(tracks, name="Custom Playlist", public_playlist=False, descr
 # limit - number of songs
 # strictly_new - boolean, true if you want this playlist to contain songs that are NOT in your current library (playlists or user library)
 #  Note: if you use strictly_new, function will be slower since it needs to scan through user's library
-# TODO: Nathan - refactor so it doesn't add the a different version of the same song (compare title and artist)
 def create_recommended_playlist(name="song-alyze Recommendations", description="Here's some tracks you might like!", public_playlist=False, time_frame="long_term", limit=50, strictly_new=False):
-    artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]
-    track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]
+    artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]  # seeds used for get_top_artists function
+    track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]  # seeds used for get_top_tracks function
     tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
-    if strictly_new:
-        master_track_list = get_master_track_list()
+    if strictly_new:  # if tracks saved in user library shouldn't be in this created playlist
+        # two sets, one of song id's, the other of strings in for the from "<title of song> <artist>"
+        # the latter is used when there may be the same song more than once on spotify
+        #  for example an explicit and non-explicit version of the same song
+        master_track_ids, master_track_atts = get_master_track_list()
+        # duplicates to remove
+        to_remove = []
         for track in tracks:
-            if track["id"] in master_track_list:
-                tracks.remove(track)
-                #print("removed {}".format(track["name"]))
+            # if the song is in the user's library already...remove it
+            if track["id"] in master_track_ids or track["name"] + " " + track["artist"] in master_track_atts:
+                to_remove.append(track)
+        # remove duplicates
+        for track_rem in to_remove:
+            tracks.remove(track_rem)
+        # add more new unique songs until the playlist is of the requested size
         while len(tracks) < limit:
-            #print("ran new")
             new_tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
             for new_track in new_tracks:
-                if (new_track["id"] not in master_track_list) and (new_track not in tracks) and (len(tracks) < limit):
-                    #print("added new {}".format(new_track["name"]))
-                    #print("{} not in master".format(new_track["name"])) if new_track["id"] not in master_track_list else print("{} in master".format(new_track["name"]))
+                # if the track is not already in user's library...add it to the playlist
+                if (new_track["id"] not in master_track_ids) and (new_track not in tracks) and (len(tracks) < limit) and (new_track["name"] + " " + new_track["artist"] not in master_track_atts):
                     tracks.append(new_track)
     create_playlist([track["id"] for track in tracks], name=name, description=description, public_playlist=public_playlist)
 
@@ -108,20 +114,26 @@ def get_recommended_artists(time_range="long_term", limit=10):
 # This includes songs from saved playlists and songs in library
 # Returns a set! Not a list!
 def get_master_track_list():
-    master_track_list = set()
+    master_track_ids = set()  # set of track id's in users library
+    master_track_atts = set()  # set of strings in the form "<title> <artist>" in users library
     # use set since we only want to know if a song is in the set. Gets the benefit of hashing.
     # O(1) time complexity and no duplicates
     playlist_ids = [p["id"] for p in sp.current_user_playlists()["items"]]
+    # loop through users playlists
     for p in playlist_ids:
-        p_len = sp.playlist(p)["tracks"]["total"]
-        current_offset = 0
+        p_len = sp.playlist(p)["tracks"]["total"]  # num of songs in playlist
+        current_offset = 0  # index in playlist of song to grab first
         while current_offset <= p_len:
+            # for each track in current playlist
             for s in sp.playlist_tracks(p, limit=100, offset=current_offset)["items"]:
-                master_track_list.add(s["track"]["id"])
+                master_track_ids.add(s["track"]["id"])
+                master_track_atts.add(s["track"]["name"] + " " + s["track"]["artists"][0]["name"])
             current_offset += 100
+    # loop through users saved tracks
     for item in sp.current_user_saved_tracks()["items"]:
-        master_track_list.add(item["track"]["id"])
-    return master_track_list
+        master_track_ids.add(item["track"]["id"])
+        master_track_atts.add(item["track"]["name"] + " " + item["track"]["artists"][0]["name"])
+    return master_track_ids, master_track_atts
 
 
 # Function to check if a song is already saved in the currently user's library,
