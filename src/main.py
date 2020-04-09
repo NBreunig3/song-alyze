@@ -1,7 +1,7 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/8/20
+# LAST MODIFIED: 4/9/20
 
 # To make sure Python recognizes our libraries
 import spotify  # Local import of spotify.py
@@ -27,16 +27,20 @@ def main():
     for i in range(len(recommended_artists)):
         print("{}. {}".format(i+1, recommended_artists[i]["name"]))
 
-    # In library checker
-    print("\nIs {} (your top track) saved in your library?".format(top_tracks[0]["name"]))
-    print(in_library[0]["in_lib"])
-
     print("\nRecommended Tracks")  # Recommended Tracks
     for track in rec_tracks:
         print("  \"{}\" by {}".format(track["name"], track["artist"]))
 
+    # In library checker
+    print("\nIs {} (your top track) saved in your library?".format(top_tracks[0]["name"]))
+    print(in_library[0]["in_lib"])
+
     # Make a wordcloud based on your top artists
     word_cloud_gen.generate(" ".join([a["name"].replace(" ", "") for a in top_artists]))
+
+    # Create a recommended playlist. All songs that are not currently in user library
+    # Uncomment if you want the playlist created
+    # spotify.create_recommended_playlist(strictly_new=True)
 
 
 if __name__ == "__main__":
