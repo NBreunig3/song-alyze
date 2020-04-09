@@ -28,9 +28,10 @@ Sections:
         -Create word clouds in real time
         -Generate word cloud based on users most listened to artitsts and songs, as well as the lyrics to any song
         -Suggest songs with opposite themes
-        -We chose this project because the current system of music is broken. We are stuck in a jukebox of captivity.
-         Every online radio recommends the same songs, including Spotify. We want to create a convenient way of discovering
-         new music without pushing the user too far from their comfort zone.
+        
+    We chose this project because the current system of music is broken. We are stuck in a jukebox of captivity.
+    Every online radio recommends the same songs, including Spotify. We want to create a convenient way of discovering
+    new music without pushing the user too far from their comfort zone.
 
     Technologies Needed:
         -Spotify API
