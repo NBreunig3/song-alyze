@@ -1,7 +1,6 @@
 <pre>
 Project Outline
-LAST MODIFIED: 4/8/20
-Next Project Update Date: 4/10
+LAST MODIFIED: 4/20/20
 
 Sections:
     A: Our Goal / Project Writeup
@@ -119,14 +118,11 @@ Sections:
     IMPORTANT: Look at get_top_tracks function as example for all of these conventions
 
 // Section E: Current Goals
-    -Finish writing the needed methods in spotify.py using the spotipy API
-     (Look in code for links regarding API reference points and the spotipy API reference)
+   -Brainstorm new unique ways to use the API  /  Add more functionality
+   -Begin working on the GUI (tkinter)
 
 // Section F: Future Goals
-    -Include the Genius API and Dictionary API in src/lyric_analyzer.py
-    -GUI
-
-    Edit this document and add more if needed!
+    -See above section
 
 // Section G: Using GIT
     Useful git reference: https://git-scm.com/docs
