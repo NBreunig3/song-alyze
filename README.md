@@ -1,6 +1,7 @@
 <pre>
 Project Outline
-LAST MODIFIED: 4/20/20
+LAST MODIFIED: 4/23/20
+Presentation Date: 5/4/20
 
 Sections:
     A: Our Goal / Project Writeup
@@ -119,7 +120,7 @@ Sections:
 
 // Section E: Current Goals
    -Brainstorm new unique ways to use the API  /  Add more functionality
-   -Begin working on the GUI (tkinter)
+   -GUI (See main.py for instructions/TODO)
 
 // Section F: Future Goals
     -See above section
