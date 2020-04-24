@@ -55,7 +55,7 @@ def show_list(type):
         list = spotify.get_top_artists(50) if not "ta" in cache else cache["ta"]
         cache["ta"] = list
     menu = tkinter.Menu(top)
-    menu.add_command(label="Create Playlist", command=spotify.create_playlist([x["id"] for x in list], "Your" + type))
+    menu.add_command(label="Create Playlist", command=lambda: spotify.create_playlist([x["id"] for x in list], "Your" + type))
     top.config(menu=menu)
     lb = tkinter.Listbox(top, width=50, height=25, selectmode=tkinter.BROWSE)
     index = 1
