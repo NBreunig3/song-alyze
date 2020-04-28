@@ -45,3 +45,9 @@ def word_freqs(string):
             else:
                 dict[word] = 1
     return dict
+
+
+# TODO
+# Function should search by the parameter song_name and return the lyrics
+def get_song_lyrics(song_name):
+    print()
