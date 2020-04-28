@@ -1,14 +1,11 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/23/20
+# LAST MODIFIED: 4/27/20
 
-import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
-
-from genius import word_cloud_generator
-from word_cloud_gen import *
-# To make sure Python recognizes our libraries
 import spotify  # Local import of spotify.py
+import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
+import genius  # Local import of genius.py
 
 cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
 
@@ -32,13 +29,16 @@ def main():
     btn_pad = {"x": 5, "y": 5}
     top_tracks_btn = tkinter.Button(main_window, text="Top Tracks", width=btn_dim["w"], height=btn_dim["h"],
                                     command=lambda: show_list("Top Tracks"))
-    top_art_btn = tkinter.Button(main_window, text="Top Artists", width=btn_dim["w"], height=btn_dim["h"])
-    rec_art_btn = tkinter.Button(main_window, text="Recommended Artists", width=btn_dim["w"], height=btn_dim["h"])
-    rec_tracks_btn = tkinter.Button(main_window, text="Recommended Tracks", width=btn_dim["w"], height=btn_dim["h"])
+    top_art_btn = tkinter.Button(main_window, text="Top Artists", width=btn_dim["w"], height=btn_dim["h"],
+                                 command=lambda: show_list("Top Artists"))
+    rec_art_btn = tkinter.Button(main_window, text="Recommended Artists", width=btn_dim["w"], height=btn_dim["h"],
+                                 command=lambda: show_list("Rec Artists"))
+    rec_tracks_btn = tkinter.Button(main_window, text="Recommended Tracks", width=btn_dim["w"], height=btn_dim["h"],
+                                    command=lambda: show_list("Rec Tracks"))
     gen_rec_playlist_btn = tkinter.Button(main_window, text="Generate Recommended Playlist", width=btn_dim["w"],
                                           height=btn_dim["h"])
     gen_wordcloud_btn = tkinter.Button(main_window, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
-                                       command=lambda : gen_wordcloud())
+                                       command=lambda : word_cloud_dialog())
     top_art_btn.grid(row=0, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     top_tracks_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     rec_art_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
@@ -49,6 +49,10 @@ def main():
     main_window.mainloop()
 
 
+# Function to create a new window with a listbox
+# Should be called by top tracks, top artists, rec artists, rec tracks buttons
+# TODO: Add the ability to customize the API call as another menu item.
+#   i.e an option to change the time range and number of items to get
 def show_list(type):
     top = tkinter.Toplevel()
     top.title(type)
@@ -60,6 +64,9 @@ def show_list(type):
     elif type == "Top Artists":
         list = spotify.get_top_artists(50) if not "ta" in cache else cache["ta"]
         cache["ta"] = list
+    else:
+        print("Unsupported option passed into the show_list function.")
+        exit()
     menu = tkinter.Menu(top)
     menu.add_command(label="Create Playlist", command=lambda: spotify.create_playlist([x["id"] for x in list],
                                                                                       "Your" + type))
@@ -73,10 +80,19 @@ def show_list(type):
     top.mainloop()
 
 
-# method used when "Generate Wordcloud" button is pressed
-# Still need to decided which lyrics to pass in (current song or the lyrics from all top ten?)
-def gen_wordcloud():
-    word_cloud_generator()
+# TODO
+# Function should display a pop up window to select the method of word cloud generation
+#   Possible Options are: top artists, top tracks, top lyrics, etc
+# This function will be called by the "Generate Word Cloud" button
+def word_cloud_dialog():
+    # TODO
+    genius.gen_word_freq_word_cloud()
+    print()
+
+
+# Nathan TODO
+def gen_rec_playlist_dialog():
+    print()
 
 
 if __name__ == "__main__":
