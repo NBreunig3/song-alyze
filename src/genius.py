@@ -13,8 +13,7 @@ genius = lyricsgenius.Genius(config.genius_ids['client_id'])
 # test method to pass in lyrics from a genius URL, scrape it for punctuation
 # then, this method generates the word cloud by first calculating the frequency of words
 # used in the lyrics (Using multi dictionary)
-# Edited by Nathan on 4/27
-#   Function should eventually take in song id parameter
+# Function should eventually take in song id parameter
 def gen_word_freq_word_cloud():
     song_lyrics = genius._clean_str(genius._scrape_song_lyrics_from_url("https://genius.com/The-scotts-travis-scott-and-kid-cudi-the-scotts-lyrics"))
     dict = word_freqs(song_lyrics)

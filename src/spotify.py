@@ -28,7 +28,7 @@ def get_top_tracks(limit=10, time_range="long_term"):
     dict = sp.current_user_top_tracks(limit=limit, time_range=time_range)
     top_list = []  # list of dictionaries
     for x in dict["items"]:
-        top_list.append({"name": x["name"], "id": x["id"], "type": x["type"], "popularity": x["popularity"]})
+        top_list.append({"name": x["name"], "id": x["id"], "artist": x["artists"][0]["name"], "type": x["type"], "popularity": x["popularity"]})
     return top_list
 
 
