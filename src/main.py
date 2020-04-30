@@ -12,15 +12,9 @@ import genius  # Local import of genius.py
 
 cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
 
-# As of 4/23/20 currently implementing GUI
-# TODO:
-# Change theme of overall application. (4/23/20 - Tried and wasn't working)
-# Map the rest of buttons to functions
-#   - top tracks, top artists, rec tracks, can all use the show_list function below
-#     See top_tracks as an example
-# Add the ability to customize the calls in the GUI (i.e. changing time_range and other function parameters)
-# Make pop up windows "focused" (i.e. can't go back to previously windows while current one is opened)
-# Make windows show in the center of screen
+# Overall TODO:
+# Change theme of overall application. (4/30/20 - Tried and wasn't working)
+# Finish the word_cloud_dialog function (see comments on that function for details)
 
 
 def main():
@@ -53,7 +47,7 @@ def main():
     gen_rec_playlist_btn = tkinter.Button(content_frame, text="Generate Recommended Playlist", width=btn_dim["w"],
                                           height=btn_dim["h"])
     gen_wordcloud_btn = tkinter.Button(content_frame, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
-                                       command=lambda : word_cloud_dialog())
+                                       command=lambda: word_cloud_dialog())
     title_lbl.grid(row=0, column=0)
     wel_lbl.grid(row=1, column=0)
     top_btn.grid(row=0, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
@@ -161,12 +155,19 @@ def show_dual_list_dialog(type):
 
 
 # TODO
-# Function should display a pop up window to select the method of word cloud generation
-#   Possible Options are: top artists, top tracks, top lyrics, etc
+# Function should display an options pop up window to select the method of word cloud generation
+# Options should be:
+#   - Data for the wordcloud (top tracks, top artists, lyrics?) (drop down menu)
+#   - Wordcloud font to use (if left blank our font will be used)
+#                           (allow the user the select his own from their local machine)
+#                           (drop down dialog with the two fonts for res/ AND an option to open a custom font)
+#   - prefer_horizontal paramter (see world_cloud_gen.py) (make this a slider from 0.0 to 1.0)
+#   - background color
+#   - any other options you can think of
+#   A button called generate should be at the button of the winow. Will take all the parameters
+#   from above into account and generate the respective word cloud
 # This function will be called by the "Generate Word Cloud" button
 def word_cloud_dialog():
-    # TODO
-    genius.gen_word_freq_word_cloud()
     print()
 
 
