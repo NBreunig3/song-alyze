@@ -48,18 +48,14 @@ def main():
     main_window.mainloop()
 
 
-# Function that creates a new windows with 2 listboxes
+# Function that creates a new window with 2 list boxes
 # Called by Top and Rec buttons
-# Nathan TODO:
-#       - Fix first listbox not updating
-#       - Comment code
-#       - Cleanup
-#       Side note: GUI's are a huge pain in the ass holy shit
 def show_dual_list_dialog(type):
-    global listbox_frame
-    global default_num_option
-    global default_timeframe_option
+    # Used as a pointer to point to the current list in this dialog
+    # so that the create a playlist buttons knows which list to use
+    cur_list = []
 
+    # Function to handle the create playlist button
     def create_playlist_btn_click(list):
         spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your Top Tracks")
         messagebox.showinfo("Success", "Playlist Created!")
@@ -67,12 +63,12 @@ def show_dual_list_dialog(type):
     def on_dropdown_change(*args):
         tf = default_timeframe_option.get().lower().split(" ")
         tf = "_".join(tf)
-        # Nathan TODO: Make this work
-        #get_content(time_frame=tf), int(default_num_option.get())
-        print(tf)
-        get_content(time_frame=tf)
+        try:
+            get_content(time_frame=tf, limit=int(default_num_option.get()))
+        except NameError:
+            get_content(time_frame=tf)
 
-    def disp_listbox(list, number, include_artist, limit):
+    def disp_listbox(order, list, number, include_artist, limit):
         lb = tkinter.Listbox(listbox_frame, width=50, height=25, selectmode=tkinter.BROWSE)
         index = 1
         for i in range(0, min(len(list), limit)):
@@ -87,31 +83,31 @@ def show_dual_list_dialog(type):
                 else:
                     lb.insert(index, "{}".format(list[i]["name"]))
             index += 1
-        lb.grid(row=0, column=listbox_frame.grid_size()[1], padx=5, pady=5)
+        lb.grid(row=0, column=order, padx=5, pady=5)
 
     def get_content(time_frame="long_term", limit=50):
         if type == "Top":
             # Top Tracks stuff
             top_tracks = spotify.get_top_tracks(50, time_range=time_frame) if not "tt-" + time_frame in cache else cache["tt-" + time_frame]
             cache["tt-" + time_frame] = top_tracks
-            disp_listbox(top_tracks, True, True, limit)
+            cache["cur"] = cache["tt-" + time_frame]
+            disp_listbox(0, top_tracks, True, True, limit)
             # Top Artists stuff
             top_artists = spotify.get_top_artists(50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
                 "ta-" + time_frame]
             cache["ta-" + time_frame] = top_artists
-            disp_listbox(top_artists, True, False, limit)
-            return top_tracks
+            disp_listbox(1, top_artists, True, False, limit)
         elif type == "Rec":
             # Rec Tracks stuff
             rec_tracks = spotify.get_recommended_tracks(limit=50) if not "rt" in cache else cache["rt"]
             cache["rt"] = rec_tracks
-            disp_listbox(rec_tracks, False, True, limit)
+            cache["cur"] = cache["rt"]
+            disp_listbox(0, rec_tracks, False, True, limit)
             # Rec Artists stuff
             rec_artists = spotify.get_recommended_artists(time_range=time_frame, limit=50) if not "ra-" + time_frame in cache else \
             cache["ra-" + time_frame]
             cache["ra-" + time_frame] = rec_artists
-            disp_listbox(rec_artists, False, False, limit)
-            return rec_tracks
+            disp_listbox(1, rec_artists, False, False, limit)
         else:
             print("Unsupported option passed into the show_list function.")
             exit()
@@ -125,12 +121,9 @@ def show_dual_list_dialog(type):
     top.title(type)
     top.resizable(False, False)
 
-    tracks = get_content()
-    # TODO - This is going to be a problem the way I get the current tracks for the create playlist button
-    #      - IDEA: Create a sep entry in cache called cur or something
     # option frame widgets
     gen_playlist_btn = tkinter.Button(option_frame, text="Create Playlist", width=15, height=1,
-                                      command=lambda: create_playlist_btn_click(tracks))
+                                      command=lambda: create_playlist_btn_click(cache["cur"]))
     gen_playlist_btn.grid(row=0, column=0, padx=5, pady=5)
     time_frame_options = ["Short Term", "Medium Term", "Long Term"]
     default_timeframe_option = tkinter.StringVar(option_frame)
