@@ -119,8 +119,7 @@ Sections:
     IMPORTANT: Look at get_top_tracks function as example for all of these conventions
 
 // Section E: Current Goals
-   -Brainstorm new unique ways to use the API  /  Add more functionality
-   -GUI (See main.py for instructions/TODO)
+   -See main.py
 
 // Section F: Future Goals
     -See above section

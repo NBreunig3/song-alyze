@@ -1,45 +1,55 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/29/20
+# LAST MODIFIED: 4/30/20
 
 import spotify  # Local import of spotify.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
 from tkinter import font as tkFont
 from tkinter import messagebox
+import ttkthemes
 import genius  # Local import of genius.py
 
 cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
 
-# As of 4/23/20 currently implementing GUI
-# TODO:
-# Change theme of overall application. (4/23/20 - Tried and wasn't working)
-# Map the rest of buttons to functions
-#   - top tracks, top artists, rec tracks, can all use the show_list function below
-#     See top_tracks as an example
-# Add the ability to customize the calls in the GUI (i.e. changing time_range and other function parameters)
-# Make pop up windows "focused" (i.e. can't go back to previously windows while current one is opened)
-# Make windows show in the center of screen
+# Overall TODO:
+# Change theme of overall application. (4/30/20 - Tried and wasn't working)
+# Finish the word_cloud_dialog function (see comments on that function for details)
 
 
 def main():
     # Beginning of GUI
-    main_window = tkinter.Tk(screenName="song-alyze", )
+    main_window = tkinter.Tk(screenName="song-alyze")
     main_window.title("song-alyze")
     main_window.resizable(False, False)
+    theme = ttkthemes.ThemedStyle(main_window)
+    theme.theme_use("arc")  # not working (4/30_
+    info_frame = tkinter.Frame(main_window)
+    content_frame = tkinter.Frame(main_window)
+    info_frame.grid(row=0, column=0)
+    content_frame.grid(row=1, column=0)
     center_in_screen(main_window)
     font = tkFont.Font(family="Segoe UI", size=11)
     main_window.option_add("*Font", font)
     btn_dim = {"w": 30, "h": 5}
-    btn_pad = {"x": 5, "y": 5}
-    top_btn = tkinter.Button(main_window, text="Top Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
+    btn_pad = {"x": 10, "y": 10}
+
+    wel_lbl_txt = tkinter.StringVar()
+    wel_lbl_txt.set("Welcome {}".format(spotify.sp.current_user()["display_name"]))
+    wel_lbl = tkinter.Label(info_frame, textvariable=wel_lbl_txt)
+    tit_lbl_txt = tkinter.StringVar()
+    tit_lbl_txt.set("song-alyze")
+    title_lbl = tkinter.Label(info_frame, textvariable=tit_lbl_txt, font=("Segoe UI Bold", 14))
+    top_btn = tkinter.Button(content_frame, text="Top Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                     command=lambda: show_dual_list_dialog("Top"))
-    rec_btn = tkinter.Button(main_window, text="Recommended Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
+    rec_btn = tkinter.Button(content_frame, text="Recommended Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                  command=lambda: show_dual_list_dialog("Rec"))
-    gen_rec_playlist_btn = tkinter.Button(main_window, text="Generate Recommended Playlist", width=btn_dim["w"],
+    gen_rec_playlist_btn = tkinter.Button(content_frame, text="Generate Recommended Playlist", width=btn_dim["w"],
                                           height=btn_dim["h"])
-    gen_wordcloud_btn = tkinter.Button(main_window, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
-                                       command=lambda : word_cloud_dialog())
+    gen_wordcloud_btn = tkinter.Button(content_frame, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
+                                       command=lambda: word_cloud_dialog())
+    title_lbl.grid(row=0, column=0)
+    wel_lbl.grid(row=1, column=0)
     top_btn.grid(row=0, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     rec_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_rec_playlist_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
@@ -88,20 +98,22 @@ def show_dual_list_dialog(type):
     def get_content(time_frame="long_term", limit=50):
         if type == "Top":
             # Top Tracks stuff
-            top_tracks = spotify.get_top_tracks(50, time_range=time_frame) if not "tt-" + time_frame in cache else cache["tt-" + time_frame]
+            top_tracks = spotify.get_top_tracks(limit=50, time_range=time_frame) if not "tt-" + time_frame in cache else cache["tt-" + time_frame]
             cache["tt-" + time_frame] = top_tracks
             cache["cur"] = cache["tt-" + time_frame]
             disp_listbox(0, top_tracks, True, True, limit)
             # Top Artists stuff
-            top_artists = spotify.get_top_artists(50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
+            top_artists = spotify.get_top_artists(limit=50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
                 "ta-" + time_frame]
             cache["ta-" + time_frame] = top_artists
             disp_listbox(1, top_artists, True, False, limit)
         elif type == "Rec":
             # Rec Tracks stuff
-            rec_tracks = spotify.get_recommended_tracks(limit=50) if not "rt" in cache else cache["rt"]
-            cache["rt"] = rec_tracks
-            cache["cur"] = cache["rt"]
+            top_tracks = spotify.get_top_tracks(limit=50, time_range=time_frame) if not "tt-" + time_frame in cache else \
+            cache["tt-" + time_frame]
+            rec_tracks = spotify.get_recommended_tracks(limit=50, track_seeds=[x["id"] for x in top_tracks[:5]]) if not "rt-" + time_frame in cache else cache["rt-" + time_frame]
+            cache["rt-" + time_frame] = rec_tracks
+            cache["cur"] = cache["rt-" + time_frame]
             disp_listbox(0, rec_tracks, False, True, limit)
             # Rec Artists stuff
             rec_artists = spotify.get_recommended_artists(time_range=time_frame, limit=50) if not "ra-" + time_frame in cache else \
@@ -118,7 +130,7 @@ def show_dual_list_dialog(type):
     option_frame.grid(row=0)
     listbox_frame = tkinter.Frame(top)
     listbox_frame.grid(row=1)
-    top.title(type)
+    top.title(type + " Artists & Tracks")
     top.resizable(False, False)
 
     # option frame widgets
@@ -143,12 +155,19 @@ def show_dual_list_dialog(type):
 
 
 # TODO
-# Function should display a pop up window to select the method of word cloud generation
-#   Possible Options are: top artists, top tracks, top lyrics, etc
+# Function should display an options pop up window to select the method of word cloud generation
+# Options should be:
+#   - Data for the wordcloud (top tracks, top artists, lyrics?) (drop down menu)
+#   - Wordcloud font to use (if left blank our font will be used)
+#                           (allow the user the select his own from their local machine)
+#                           (drop down dialog with the two fonts for res/ AND an option to open a custom font)
+#   - prefer_horizontal paramter (see world_cloud_gen.py) (make this a slider from 0.0 to 1.0)
+#   - background color
+#   - any other options you can think of
+#   A button called generate should be at the button of the winow. Will take all the parameters
+#   from above into account and generate the respective word cloud
 # This function will be called by the "Generate Word Cloud" button
 def word_cloud_dialog():
-    # TODO
-    genius.gen_word_freq_word_cloud()
     print()
 
 
@@ -163,8 +182,8 @@ def gen_rec_playlist_dialog():
 def center_in_screen(window):
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
-        x = (screen_width / 2) - (window.winfo_reqwidth()+50)
-        y = screen_height / 2 - (window.winfo_reqheight())
+        x = (screen_width / 2) - 375  # can't figure out how to get current windows size
+        y = (screen_height / 2) - 300
         window.geometry("+%d+%d" % (x, y))
 
 
