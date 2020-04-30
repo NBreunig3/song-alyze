@@ -44,7 +44,7 @@ def main():
     rec_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_rec_playlist_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_wordcloud_btn.grid(row=1, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
-    # make_cloud(get_frequency_dict_for_text(text));
+    spotify.get_master_track_list()
     main_window.mainloop()
 
 
@@ -159,6 +159,7 @@ def gen_rec_playlist_dialog():
 
 # this shit broken
 # I no good at maths, maybe someone cold figure it out lol
+# I no use GUI, GUI is the devil
 def center_in_screen(window):
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()

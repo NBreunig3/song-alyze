@@ -12,6 +12,8 @@ __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOP
                                            client_secret=config.spotify_ids["client_secret"],
                                            redirect_uri="http://localhost/")
 #  If AUTH_TOKEN is legit...
+from genius import get_bulk_song_lyrics
+
 if __AUTH_TOKEN__:
     # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
     global sp
@@ -127,12 +129,14 @@ def get_master_track_list():
             # for each track in current playlist
             for s in sp.playlist_tracks(p, limit=100, offset=current_offset)["items"]:
                 master_track_ids.add(s["track"]["id"])
-                master_track_atts.add(s["track"]["name"] + " " + s["track"]["artists"][0]["name"])
+                master_track_atts.add(s["track"]["name"] + "!" + s["track"]["artists"][0]["name"])
             current_offset += 100
     # loop through users saved tracks
     for item in sp.current_user_saved_tracks()["items"]:
         master_track_ids.add(item["track"]["id"])
-        master_track_atts.add(item["track"]["name"] + " " + item["track"]["artists"][0]["name"])
+        master_track_atts.add(item["track"]["name"] + "!" + item["track"]["artists"][0]["name"])
+    # TODO Reroute this next method call to its own button on the word cloud GUI
+    get_bulk_song_lyrics(master_track_atts) # test for functionality. Need to create word cloud GUI
     return master_track_ids, master_track_atts
 
 
