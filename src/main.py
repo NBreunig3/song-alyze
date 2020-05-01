@@ -10,6 +10,8 @@ from tkinter import messagebox
 import ttkthemes
 import genius  # Local import of genius.py
 import word_cloud_gen # Local import of word_cloud_gen.py
+from tkinter import filedialog as fd
+import os
 
 cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
 
@@ -179,27 +181,67 @@ def word_cloud_dialog():
     def on_dropdown_change(*args):
         text_op = default_text_op.get().lower().split(" ")
     
+    # user has selected to generate word cloud
     def generate_wordcloud_btn_click():
+        # create word cloud based on top tracks
         if default_text_op.get() == "Top Tracks":
-            tracks = cache["tt-long_term"]
+            # creates list of top track long term in not in the cache
+            tracks = spotify.get_top_tracks(limit=50, time_range="long_term") if not "tt-long_term" in cache else cache["tt-long_term"]
+            cache["tt-long_term"] = tracks
+            #creates list of song names
             track_list = []
             for t in tracks:
                 track_list.append(t['name'])
             text = " ".join(track_list)
+        # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
+            # creates list of top artists if not in the cache
+            artists = spotify.get_top_artists(limit=50, time_range="long_term") if not "ta-long_term" in cache else cache[
+                "ta-long_term"]
+            cache["ta-long_term"] = artists
+            #create list of artist names
             artists = cache["ta-long_term"]
-            artist_list = []
-            for a in artists:
-                artist_list.append(a['name'])
-            text = " ".join(artist_list)
-        word_cloud_gen.generate(text, prefer_horizontal=slider.get())
-        
+            artists.reverse()
+            artist_list = {}
+            for a in range(len(artists)):
+                artist_list[artists[a]['name']] = a
+#           can switch with above for loop. Allows full artist name in word cloud
+#            for a in artists:
+#                artist_list.append(a['name'])
+#            text = " ".join(artist_list)
+            
+#        Still can not get local font. Having trouble working with directories.     
+#        font = default_font_op.get()
+#        if font == "Select local font":
+#            font = fd.askopenfilename()
+#            font = os.path.dirname(os.path.abspath(font))
+#        
+        word_cloud_gen.generate(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font=default_font_op.get())
+    
+    #Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
     default_text_op = tkinter.StringVar(option_frame)
     default_text_op.trace("w", on_dropdown_change)
     default_text_op.set(text_options[0])
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
     text_menu.grid(row=0, column=2, padx=5, pady=5)
+    
+    #Color drop down menu
+    color_options = ["black", "white", "blue", "magenta", "green", "random"]
+    default_color_op = tkinter.StringVar(option_frame)
+    default_color_op.trace("w", on_dropdown_change)
+    default_color_op.set(color_options[0])
+    color_menu = tkinter.OptionMenu(option_frame, default_color_op, *color_options)
+    color_menu.grid(row=0, column=3, padx=5, pady=5)
+    
+    #Font drop down menu
+    font_options = ["Marvind", "AlphaMusicMan", "Select local font"]
+    default_font_op = tkinter.StringVar(option_frame)
+    default_font_op.trace("w", on_dropdown_change)
+    default_font_op.set(font_options[0])
+    font_menu = tkinter.OptionMenu(option_frame, default_font_op, *font_options)
+    font_menu.grid(row=0, column=4, padx=5, pady=5)
+    
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
     slider.grid(row=0, column=1, padx=5, pady=5)
