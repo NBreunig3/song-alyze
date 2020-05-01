@@ -59,10 +59,16 @@ def create_playlist(tracks, name="Custom Playlist", public_playlist=False, descr
 # limit - number of songs
 # strictly_new - boolean, true if you want this playlist to contain songs that are NOT in your current library (playlists or user library)
 #  Note: if you use strictly_new, function will be slower since it needs to scan through user's library
-def create_recommended_playlist(name="song-alyze Recommendations", description="Here's some tracks you might like!", public_playlist=False, time_frame="long_term", limit=50, strictly_new=False):
-    artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]  # seeds used for get_top_artists function
-    track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]  # seeds used for get_top_tracks function
-    tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
+def create_recommended_playlist(name="song-alyze Recommendations", description="Here's some tracks you might like!", public_playlist=False, time_frame="long_term", songs=[], limit=50, strictly_new=False):
+    if len(songs) == 0:
+        artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]  # seeds used for get_top_artists function
+        track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]  # seeds used for get_top_tracks function
+        tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
+    else:
+        artist_seeds = []
+        track_seeds = [x["id"] for x in songs]
+        tracks = get_recommended_tracks(track_seeds=[x["id"] for x in songs], limit=limit)
+
     if strictly_new:  # if tracks saved in user library shouldn't be in this created playlist
         # two sets, one of song id's, the other of strings in for the from "<title of song> <artist>"
         # the latter is used when there may be the same song more than once on spotify
@@ -91,7 +97,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
 # Provide either a list of artists, tracks, or genres (id's)
 # (NO MORE THAN 5 i.e. Up to 5 seed values may be provided in any combination of seed_artists, seed_tracks and seed_genres)
 # Returns a list of dictionaries
-def get_recommended_tracks(artists_seeds=None, track_seeds=None, genre_seeds=None, limit=10, country=None):
+def get_recommended_tracks(artists_seeds=[], track_seeds=[], genre_seeds=[], limit=10, country=None):
     rec = sp.recommendations(seed_artists=artists_seeds, seed_tracks=track_seeds, seed_genres=genre_seeds, limit=limit, country=country)
     rec_list = []
     for track in rec["tracks"]:

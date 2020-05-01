@@ -208,23 +208,46 @@ def word_cloud_dialog():
 
 # Nathan TODO
 def gen_rec_playlist_dialog():
-    def num_option_change():
-        # TODO
-        print()
-
     def gen_playlist():
-        # TODO
-        print()
+        def handle_seeds(seed):
+            import random
+            if seed.get() == "":
+                if "tt-long_term" in cache:
+                    return cache["tt-long_term"][random.randint(0, len(cache["tt-long_term"])-1)]
+                else:
+                    tt = spotify.get_top_tracks(limit=50)
+                    cache["tt-long_term"] = tt
+                    return tt[random.randint(0, len(tt)-1)]
+            else:
+                return spotify.get_search_result(seed.get())
+
+        title = name.get()
+        description = des.get()
+        s1 = handle_seeds(seed1)
+        s2 = handle_seeds(seed2)
+        s3 = handle_seeds(seed3)
+        s4 = handle_seeds(seed4)
+        s5 = handle_seeds(seed5)
+        songs = [s1, s2, s3, s4, s5]
+        strict_mode = True if strict_checked.get() == 1 else False
+        public_playlist = True if pub_checked.get() == 1 else False
+        try:
+            top.configure(cursor="wait")  # TODO not working
+            spotify.create_recommended_playlist(name=title, description=description, public_playlist=public_playlist, songs=songs, strictly_new=strict_mode)
+            top.configure(cursor="")
+            messagebox.showinfo("Success", "Playlist created!")
+        except Exception as e:
+            print(e)
+            messagebox.showinfo("Error", "Error creating playlist")
 
     top = tkinter.Toplevel()
     top.grab_set()
-    top.title("Generate Recommended Playlist")
+    top.title("Create Playlist")
     top.resizable(False, False)
     frame1 = tkinter.Frame(top)
     frame2 = tkinter.Frame(top)
     frame1.grid(row=0, column=0)
     frame2.grid(row=1, column=0)
-
 
     name = tkinter.Entry(frame1, justify=tkinter.CENTER)
     lbl_name = tkinter.Label(frame1, text="Name: ")
@@ -236,16 +259,9 @@ def gen_rec_playlist_dialog():
     des.grid(row=1, column=1, padx=10, pady=10)
     lbl_pub = tkinter.Label(frame2, text="Public Playlist: ")
     lbl_pub.grid(row=1, column=0)
-    pub = tkinter.Checkbutton(frame2)
+    pub_checked = tkinter.IntVar()
+    pub = tkinter.Checkbutton(frame2, variable=pub_checked)
     pub.grid(row=1, column=1, padx=0, pady=10)
-    num_options = [10, 25, 50]
-    def_num_options = tkinter.StringVar(frame2)
-    def_num_options.trace("w", num_option_change())
-    def_num_options.set(num_options[2])
-    num = tkinter.OptionMenu(frame2, def_num_options, *num_options)
-    lbl_num = tkinter.Label(frame2, text="Songs: ")
-    lbl_num.grid(row=0, column=0)
-    num.grid(row=0, column=1, padx=0, pady=10)
     seed1 = tkinter.Entry(frame1, justify=tkinter.CENTER)
     lbl_seed1 = tkinter.Label(frame1, text="Track 1: ")
     lbl_seed1.grid(row=3, column=0)
@@ -266,7 +282,8 @@ def gen_rec_playlist_dialog():
     lbl_seed5 = tkinter.Label(frame1, text="Track 5: ")
     lbl_seed5.grid(row=7, column=0)
     seed5.grid(row=7, column=1, padx=10, pady=10)
-    strict = tkinter.Checkbutton(frame2)
+    strict_checked = tkinter.IntVar()
+    strict = tkinter.Checkbutton(frame2, variable=strict_checked)
     lbl_strict = tkinter.Label(frame2, text="Strict Mode: ")
     lbl_strict.grid(row=2, column=0)
     strict.grid(row=2, column=1, padx=0, pady=10)
