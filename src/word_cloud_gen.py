@@ -15,6 +15,18 @@ def generate(text, prefer_horizontal=0.6, back_color="black", font_path="../res/
     if back_color == "random":
         back_color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
     #creates word cloud    
+    wc = WordCloud(width=1920, height=1080, prefer_horizontal=prefer_horizontal, background_color=back_color, font_path=font_path).generate(text)
+    plot.figure(figsize=(20, 10))
+    plot.imshow(wc, interpolation="bilinear")
+    plot.axis("off")
+    plot.tight_layout(pad=0)
+    plot.show()
+
+def generate_from_frequencies(text, prefer_horizontal=0.6, back_color="black", font_path="../res/fonts/Marvind.ttf"):
+    # generates a random color for the background
+    if back_color == "random":
+        back_color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+    #creates word cloud    
     wc = WordCloud(width=1920, height=1080, prefer_horizontal=prefer_horizontal, background_color=back_color, font_path=font_path).generate_from_frequencies(text)
     plot.figure(figsize=(20, 10))
     plot.imshow(wc, interpolation="bilinear")

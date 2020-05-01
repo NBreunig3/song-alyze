@@ -9,7 +9,6 @@ from tkinter import font as tkFont
 from tkinter import messagebox
 import ttkthemes
 import word_cloud_gen # Local import of word_cloud_gen.py
-<<<<<<< HEAD
 from tkinter import filedialog as fd
 import os
 from cache import cache
@@ -56,7 +55,7 @@ def main():
     rec_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_rec_playlist_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_wordcloud_btn.grid(row=1, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
-    spotify.get_master_track_list()
+    #spotify.get_master_track_list()
     main_window.mainloop()
 
 
@@ -156,16 +155,8 @@ def show_dual_list_dialog(type):
     top.mainloop()
 
 
-# TODO
+
 # Function should display an options pop up window to select the method of word cloud generation
-# Options should be:
-#   - Data for the wordcloud (top tracks, top artists, lyrics?) (drop down menu)
-#   - Wordcloud font to use (if left blank our font will be used)
-#                           (allow the user the select his own from their local machine)
-#                           (drop down dialog with the two fonts for res/ AND an option to open a custom font)
-#   - prefer_horizontal paramter (see world_cloud_gen.py) (make this a slider from 0.0 to 1.0)
-#   - background color
-#   - any other options you can think of
 #   A button called generate should be at the button of the winow. Will take all the parameters
 #   from above into account and generate the respective word cloud
 # This function will be called by the "Generate Word Cloud" button
@@ -179,9 +170,16 @@ def word_cloud_dialog():
     
     def on_dropdown_change(*args):
         text_op = default_text_op.get().lower().split(" ")
-    
+
     # user has selected to generate word cloud
     def generate_wordcloud_btn_click():
+        font = default_font_op.get()
+        if font == "Select local font":
+            font = fd.askopenfilename()
+            font = os.path.dirname(os.path.abspath(font))
+        else:
+            font = "../res/fonts/"+font+".ttf"
+            
         # create word cloud based on top tracks
         if default_text_op.get() == "Top Tracks":
             # creates list of top track long term in not in the cache
@@ -192,6 +190,7 @@ def word_cloud_dialog():
             for t in tracks:
                 track_list.append(t['name'])
             text = " ".join(track_list)
+            word_cloud_gen.generate(tracks, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
         # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
             # creates list of top artists if not in the cache
@@ -204,27 +203,15 @@ def word_cloud_dialog():
             artist_list = {}
             for a in range(len(artists)):
                 artist_list[artists[a]['name']] = a
-#           can switch with above for loop. Allows full artist name in word cloud
-#            for a in artists:
-#                artist_list.append(a['name'])
-#            text = " ".join(artist_list)
-            
-#        Still can not get local font. Having trouble working with directories.     
-#        font = default_font_op.get()
-#        if font == "Select local font":
-#            font = fd.askopenfilename()
-#            font = os.path.dirname(os.path.abspath(font))
-#        
-        word_cloud_gen.generate(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font=default_font_op.get())
-    
+            word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+        
     #Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
     default_text_op = tkinter.StringVar(option_frame)
     default_text_op.trace("w", on_dropdown_change)
     default_text_op.set(text_options[0])
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
-<<<<<<< HEAD
-    text_menu.grid(row=0, column=2, padx=5, pady=5)
+    text_menu.grid(row=0, column=0, padx=5, pady=5)
     
     #Color drop down menu
     color_options = ["black", "white", "blue", "magenta", "green", "random"]
@@ -232,7 +219,7 @@ def word_cloud_dialog():
     default_color_op.trace("w", on_dropdown_change)
     default_color_op.set(color_options[0])
     color_menu = tkinter.OptionMenu(option_frame, default_color_op, *color_options)
-    color_menu.grid(row=0, column=3, padx=5, pady=5)
+    color_menu.grid(row=0, column=1, padx=5, pady=5)
     
     #Font drop down menu
     font_options = ["Marvind", "AlphaMusicMan", "Select local font"]
@@ -240,17 +227,17 @@ def word_cloud_dialog():
     default_font_op.trace("w", on_dropdown_change)
     default_font_op.set(font_options[0])
     font_menu = tkinter.OptionMenu(option_frame, default_font_op, *font_options)
-    font_menu.grid(row=0, column=4, padx=5, pady=5)
+    font_menu.grid(row=0, column=2, padx=5, pady=5)
     
-=======
-    text_menu.grid(row=0, column=0, padx=5, pady=5)
->>>>>>> 7f5e2ab215f83ddaa63998f307214c6c4528dfed
+    # slider to adjust horizontal scale
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
-    slider.grid(row=1, column=0, padx=5, pady=5)
+    slider.grid(row=0, column=3, padx=5, pady=5)
+    
+    #generate word cloud button
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
                                       command=lambda: generate_wordcloud_btn_click())
-    generate_button.grid(row=2, column=0, padx=5, pady=5)
+    generate_button.grid(row=0, column=4, padx=5, pady=5)
     
 
 # Nathan TODO
