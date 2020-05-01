@@ -1,19 +1,18 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/30/20
+# LAST MODIFIED: 5/1/20
 
 import spotify  # Local import of spotify.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
 from tkinter import font as tkFont
 from tkinter import messagebox
 import ttkthemes
-import genius  # Local import of genius.py
 import word_cloud_gen # Local import of word_cloud_gen.py
+<<<<<<< HEAD
 from tkinter import filedialog as fd
 import os
-
-cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
+from cache import cache
 
 # Overall TODO:
 # Change theme of overall application. (4/30/20 - Tried and wasn't working)
@@ -48,7 +47,7 @@ def main():
     rec_btn = tkinter.Button(content_frame, text="Recommended Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                  command=lambda: show_dual_list_dialog("Rec"))
     gen_rec_playlist_btn = tkinter.Button(content_frame, text="Generate Recommended Playlist", width=btn_dim["w"],
-                                          height=btn_dim["h"])
+                                          height=btn_dim["h"], command=lambda: gen_rec_playlist_dialog())
     gen_wordcloud_btn = tkinter.Button(content_frame, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
                                        command=lambda: word_cloud_dialog())
     title_lbl.grid(row=0, column=0)
@@ -70,7 +69,7 @@ def show_dual_list_dialog(type):
 
     # Function to handle the create playlist button
     def create_playlist_btn_click(list):
-        spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your Top Tracks")
+        spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your {} Tracks".format(type))
         messagebox.showinfo("Success", "Playlist Created!")
 
     def on_dropdown_change(*args):
@@ -224,6 +223,7 @@ def word_cloud_dialog():
     default_text_op.trace("w", on_dropdown_change)
     default_text_op.set(text_options[0])
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
+<<<<<<< HEAD
     text_menu.grid(row=0, column=2, padx=5, pady=5)
     
     #Color drop down menu
@@ -242,18 +242,103 @@ def word_cloud_dialog():
     font_menu = tkinter.OptionMenu(option_frame, default_font_op, *font_options)
     font_menu.grid(row=0, column=4, padx=5, pady=5)
     
+=======
+    text_menu.grid(row=0, column=0, padx=5, pady=5)
+>>>>>>> 7f5e2ab215f83ddaa63998f307214c6c4528dfed
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
-    slider.grid(row=0, column=1, padx=5, pady=5)
+    slider.grid(row=1, column=0, padx=5, pady=5)
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
                                       command=lambda: generate_wordcloud_btn_click())
-    generate_button.grid(row=0, column=0, padx=5, pady=5)
+    generate_button.grid(row=2, column=0, padx=5, pady=5)
     
-
 
 # Nathan TODO
 def gen_rec_playlist_dialog():
-    print()
+    def gen_playlist():
+        def handle_seeds(seed):
+            import random
+            if seed.get() == "":
+                if "tt-long_term" in cache:
+                    return cache["tt-long_term"][random.randint(0, len(cache["tt-long_term"])-1)]
+                else:
+                    tt = spotify.get_top_tracks(limit=50)
+                    cache["tt-long_term"] = tt
+                    return tt[random.randint(0, len(tt)-1)]
+            else:
+                return spotify.get_search_result(seed.get())
+
+        title = name.get()
+        description = des.get()
+        s1 = handle_seeds(seed1)
+        s2 = handle_seeds(seed2)
+        s3 = handle_seeds(seed3)
+        s4 = handle_seeds(seed4)
+        s5 = handle_seeds(seed5)
+        songs = [s1, s2, s3, s4, s5]
+        strict_mode = True if strict_checked.get() == 1 else False
+        public_playlist = True if pub_checked.get() == 1 else False
+        try:
+            top.configure(cursor="wait")  # TODO not working
+            spotify.create_recommended_playlist(name=title, description=description, public_playlist=public_playlist, songs=songs, strictly_new=strict_mode)
+            top.configure(cursor="")
+            messagebox.showinfo("Success", "Playlist created!")
+        except Exception as e:
+            print(e)
+            messagebox.showinfo("Error", "Error creating playlist")
+
+    top = tkinter.Toplevel()
+    top.grab_set()
+    top.title("Create Playlist")
+    top.resizable(False, False)
+    frame1 = tkinter.Frame(top)
+    frame2 = tkinter.Frame(top)
+    frame1.grid(row=0, column=0)
+    frame2.grid(row=1, column=0)
+
+    name = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_name = tkinter.Label(frame1, text="Name: ")
+    lbl_name.grid(row=0, column=0)
+    name.grid(row=0, column=1, padx=10, pady=10)
+    lbl_des = tkinter.Label(frame1, text="Description: ")
+    lbl_des.grid(row=1, column=0)
+    des = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    des.grid(row=1, column=1, padx=10, pady=10)
+    lbl_pub = tkinter.Label(frame2, text="Public Playlist: ")
+    lbl_pub.grid(row=1, column=0)
+    pub_checked = tkinter.IntVar()
+    pub = tkinter.Checkbutton(frame2, variable=pub_checked)
+    pub.grid(row=1, column=1, padx=0, pady=10)
+    seed1 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed1 = tkinter.Label(frame1, text="Track 1: ")
+    lbl_seed1.grid(row=3, column=0)
+    seed1.grid(row=3, column=1, padx=10, pady=10)
+    seed2 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed2 = tkinter.Label(frame1, text="Track 2: ")
+    lbl_seed2.grid(row=4, column=0)
+    seed2.grid(row=4, column=1, padx=10, pady=10)
+    seed3 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed3 = tkinter.Label(frame1, text="Track 3: ")
+    lbl_seed3.grid(row=5, column=0)
+    seed3.grid(row=5, column=1, padx=10, pady=10)
+    seed4 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed4 = tkinter.Label(frame1, text="Track 4: ")
+    lbl_seed4.grid(row=6, column=0)
+    seed4.grid(row=6, column=1, padx=10, pady=10)
+    seed5 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed5 = tkinter.Label(frame1, text="Track 5: ")
+    lbl_seed5.grid(row=7, column=0)
+    seed5.grid(row=7, column=1, padx=10, pady=10)
+    strict_checked = tkinter.IntVar()
+    strict = tkinter.Checkbutton(frame2, variable=strict_checked)
+    lbl_strict = tkinter.Label(frame2, text="Strict Mode: ")
+    lbl_strict.grid(row=2, column=0)
+    strict.grid(row=2, column=1, padx=0, pady=10)
+    gen_btn = tkinter.Button(top, text="Generate Playlist", command=lambda: gen_playlist())
+    gen_btn.grid(row=2, column=0, padx=10, pady=10)
+
+    top.mainloop()
+
 
 
 # this shit broken

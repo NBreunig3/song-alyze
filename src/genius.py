@@ -1,29 +1,35 @@
 # genius.py
 # Uses the genius API to get lyrics of songs
-# LAST MODIFIED: 4/27/20
+# LAST MODIFIED: 5/1/20
 
 import lyricsgenius
 import config
-import word_cloud_gen as wc
 import requests
+import spotify
+from cache import cache
 
 # authorizes user using client id that is stored in config
 genius = lyricsgenius.Genius(config.genius_ids['client_id'])
 
 
-# test method to pass in lyrics from a genius URL, scrape it for punctuation
-# then, this method generates the word cloud by first calculating the frequency of words
-# used in the lyrics (Using multi dictionary)
-# Function should eventually take in song id parameter
-def gen_word_freq_word_cloud(song_lyrics_url):
-    song_lyrics = genius._clean_str(genius._scrape_song_lyrics_from_url(song_lyrics_url))
-    dict = word_freqs(song_lyrics)
-    # sort dict
-    sort = sorted(dict, key=lambda x: dict[x], reverse=True)
-    # keeps only the top 175 words from list
-    sort = sort[:175]
-    # generate word cloud
-    wc.generate(" ".join(sort))
+def get_song_lyric_freq(song_name, song_artist):
+    url = get_lyrics_url(song_name=song_name, song_artist=song_artist)
+    if url is not None:
+        song_lyrics = genius._clean_str(genius._scrape_song_lyrics_from_url(url))
+        print(song_lyrics)
+        return word_freqs(song_lyrics)
+
+
+def get_top_song_lyric_freq(time_range="long_term", limit=10):
+    top_tracks = cache["tt-"+time_range] if "tt-"+time_range in cache else spotify.get_top_tracks(time_range=time_range, limit=limit)
+    urls = [get_lyrics_url(t["name"], t["artist"]) for t in top_tracks]
+    lyrics = ""
+    for url in urls:
+        if url is not None:
+            lyrics += genius._clean_str(genius._scrape_song_lyrics_from_url(url))
+            lyrics += " "
+            print(lyrics)
+    return word_freqs(lyrics)
 
 
 # Function to count the word frequencies of a space separated string
@@ -34,14 +40,30 @@ def word_freqs(string):
     common_words = set(x for x in __exclude_words__.split(" "))
     punc = ",./?!()-\"\';"
     dict = {}
+
+    string = string.replace("\n", " ")
+    to_del = []
+    for i in range(len(string)):
+        if not string[i].isalnum() and string[i] != " ":
+            to_del.append(i)
+    new_str = ""
+    for i in range(len(string)):
+        if i not in to_del:
+            new_str += string[i]
+
+    string = new_str
+    string = string.replace("chorus", "")
+    string = string.replace("verse", "")
+    for i in range(5):
+        string = string.replace("verse {}".format(i), "")
+    string = string.replace("bridge", "")
     words = string.lower().split(" ")
 
     # remove special chars and count words
     for word in words:
-        for p in punc:
-            if p in word:
-                word = word.replace(p, "")
         if word not in common_words:
+            if word[len(word)-1] == "s":
+                word = word[:len(word)-1]
             if word in dict:
                 dict[word] = dict[word] + 1
             else:
@@ -50,18 +72,16 @@ def word_freqs(string):
 
 
 # Function should search by the parameter song_name and artist_name and return the lyrics
-def get_song_lyrics(song_name="Rap God", artist_name="Eminem"):
+def get_lyrics_url(song_name="Rap God", song_artist="Eminem"):
     base_url = "https://api.genius.com"
     headers = {'Authorization': 'Bearer 4VCfSDiSstA8ZzJd9Z5rFPNoODBR8XT13e_5uHeLOWqkmWzApPiNa-MYnYH_wOlq'}
     search_url = base_url + "/search"
-    song_title = song_name
-    artist_name = artist_name
-    data = {'q': song_title}
+    data = {'q': song_name}
     response = requests.get(search_url, data=data, headers=headers)
     json = response.json()
     song_info = None
     for hit in json["response"]["hits"]:
-        if hit["result"]["primary_artist"]["name"] == artist_name:
+        if hit["result"]["primary_artist"]["name"] == song_artist:
             song_info = hit
             break
     if song_info:
@@ -72,24 +92,26 @@ def get_song_lyrics(song_name="Rap God", artist_name="Eminem"):
 
 # Function used to retrieve all lyrics from the passed in set and generate a word cloud
 # set_of_artists_and_songs created in the get_master_track_list function of spotify
-def get_bulk_song_lyrics(master_track_atts):
+def get_bulk_lyric_freq():
+    master_track_atts = spotify.get_master_track_list()[1]
+    master_word_dict = {}
     song_title = []
     artist_name = []
     for x in master_track_atts:
-        song_title.append(x.split("!")[0])
-        artist_name.append(x.split("!")[1])
-    list_of_urls = [get_song_lyrics(song_title[x], artist_name[x]) for x in range(len(song_title))]
-    total_song_lyrics = ""
+        song_title.append(x[x.find("<")+1:x.find(">")])
+        x = x[x.find(">")+1:]
+        artist_name.append(x[x.find("<")+1:x.find(">")])
+    list_of_urls = [get_lyrics_url(song_title[x], artist_name[x]) for x in range(len(song_title))]
     for url in list_of_urls:
         if url is not None:
-            total_song_lyrics += genius._clean_str(genius._scrape_song_lyrics_from_url(url))
-    lyric_dict = word_freqs(total_song_lyrics)
-    # sort dict
-    sort = sorted(lyric_dict, key=lambda x: lyric_dict[x], reverse=True)
-    # keeps only the top 175 words from list
-    sort = sort[:175]
-    # generate word cloud
-    wc.generate(" ".join(sort))
+            song_lyrics = genius._clean_str(genius._scrape_song_lyrics_from_url(url))
+            lyric_list = song_lyrics.split(" ")
+            for lyric in lyric_list:
+                if lyric in master_word_dict:
+                    master_word_dict[lyric] = master_word_dict[lyric] + 1
+                else:
+                    master_word_dict[lyric] = 1
+    return master_word_dict
 
 
 

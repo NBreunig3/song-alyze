@@ -1,6 +1,6 @@
 # spotify.py
 # This is where we will write our methods using spotipy to interact with the Spotify API
-# LAST MODIFIED: 4/9/20
+# LAST MODIFIED: 5/1/20
 
 import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 import config  # Spotify API id's
@@ -12,7 +12,6 @@ __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOP
                                            client_secret=config.spotify_ids["client_secret"],
                                            redirect_uri="http://localhost/")
 #  If AUTH_TOKEN is legit...
-from genius import get_bulk_song_lyrics
 
 if __AUTH_TOKEN__:
     # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
@@ -60,10 +59,16 @@ def create_playlist(tracks, name="Custom Playlist", public_playlist=False, descr
 # limit - number of songs
 # strictly_new - boolean, true if you want this playlist to contain songs that are NOT in your current library (playlists or user library)
 #  Note: if you use strictly_new, function will be slower since it needs to scan through user's library
-def create_recommended_playlist(name="song-alyze Recommendations", description="Here's some tracks you might like!", public_playlist=False, time_frame="long_term", limit=50, strictly_new=False):
-    artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]  # seeds used for get_top_artists function
-    track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]  # seeds used for get_top_tracks function
-    tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
+def create_recommended_playlist(name="song-alyze Recommendations", description="Here's some tracks you might like!", public_playlist=False, time_frame="long_term", songs=[], limit=50, strictly_new=False):
+    if len(songs) == 0:
+        artist_seeds = [artist["id"] for artist in get_top_artists(3, time_frame)]  # seeds used for get_top_artists function
+        track_seeds = [track["id"] for track in get_top_tracks(2, time_frame)]  # seeds used for get_top_tracks function
+        tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
+    else:
+        artist_seeds = []
+        track_seeds = [x["id"] for x in songs]
+        tracks = get_recommended_tracks(track_seeds=[x["id"] for x in songs], limit=limit)
+
     if strictly_new:  # if tracks saved in user library shouldn't be in this created playlist
         # two sets, one of song id's, the other of strings in for the from "<title of song> <artist>"
         # the latter is used when there may be the same song more than once on spotify
@@ -73,7 +78,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
         to_remove = []
         for track in tracks:
             # if the song is in the user's library already...remove it
-            if track["id"] in master_track_ids or track["name"] + " " + track["artist"] in master_track_atts:
+            if track["id"] in master_track_ids or "<{}><{}>".format(track["name"], track["artist"]) in master_track_atts:
                 to_remove.append(track)
         # remove duplicates
         for track_rem in to_remove:
@@ -83,7 +88,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
             new_tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
             for new_track in new_tracks:
                 # if the track is not already in user's library...add it to the playlist
-                if (new_track["id"] not in master_track_ids) and (new_track not in tracks) and (len(tracks) < limit) and (new_track["name"] + " " + new_track["artist"] not in master_track_atts):
+                if (new_track["id"] not in master_track_ids) and (new_track not in tracks) and (len(tracks) < limit) and "<{}><{}>".format(new_track["name"], new_track["artist"]) not in master_track_atts:
                     tracks.append(new_track)
     create_playlist([track["id"] for track in tracks], name=name, description=description, public_playlist=public_playlist)
 
@@ -92,7 +97,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
 # Provide either a list of artists, tracks, or genres (id's)
 # (NO MORE THAN 5 i.e. Up to 5 seed values may be provided in any combination of seed_artists, seed_tracks and seed_genres)
 # Returns a list of dictionaries
-def get_recommended_tracks(artists_seeds=None, track_seeds=None, genre_seeds=None, limit=10, country=None):
+def get_recommended_tracks(artists_seeds=[], track_seeds=[], genre_seeds=[], limit=10, country=None):
     rec = sp.recommendations(seed_artists=artists_seeds, seed_tracks=track_seeds, seed_genres=genre_seeds, limit=limit, country=country)
     rec_list = []
     for track in rec["tracks"]:
@@ -129,14 +134,12 @@ def get_master_track_list():
             # for each track in current playlist
             for s in sp.playlist_tracks(p, limit=100, offset=current_offset)["items"]:
                 master_track_ids.add(s["track"]["id"])
-                master_track_atts.add(s["track"]["name"] + "!" + s["track"]["artists"][0]["name"])
+                master_track_atts.add("<{}><{}>".format(s["track"]["name"], s["track"]["artists"][0]["name"]))
             current_offset += 100
     # loop through users saved tracks
     for item in sp.current_user_saved_tracks()["items"]:
         master_track_ids.add(item["track"]["id"])
-        master_track_atts.add(item["track"]["name"] + "!" + item["track"]["artists"][0]["name"])
-    # TODO Reroute this next method call to its own button on the word cloud GUI
-#    get_bulk_song_lyrics(master_track_atts) # test for functionality. Need to create word cloud GUI
+        master_track_atts.add("<{}><{}>".format(item["track"]["name"], item["track"]["artists"][0]["name"]))
     return master_track_ids, master_track_atts
 
 
@@ -156,3 +159,8 @@ def in_library(songs):
 # Returns a boolean
 def song_in_library(song):
     return in_library(song)[0]["in_lib"]
+
+
+def get_search_result(query):
+    res = sp.search(query, type="track", limit=1)["tracks"]["items"][0]
+    return {"name": res["name"], "type": res["type"], "id": res["id"], "artist": res["artists"][0]["name"], "artist_id": res["artists"][0]["id"]}
