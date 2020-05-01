@@ -9,6 +9,7 @@ from tkinter import font as tkFont
 from tkinter import messagebox
 import ttkthemes
 import genius  # Local import of genius.py
+import word_cloud_gen # Local import of word_cloud_gen.py
 
 cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
 
@@ -167,8 +168,45 @@ def show_dual_list_dialog(type):
 #   A button called generate should be at the button of the winow. Will take all the parameters
 #   from above into account and generate the respective word cloud
 # This function will be called by the "Generate Word Cloud" button
-def word_cloud_dialog():
-    print()
+def word_cloud_dialog():        
+    top = tkinter.Toplevel()
+    top.grab_set()
+    option_frame = tkinter.Frame(top)
+    option_frame.grid(row=0)
+    top.title("Word Cloud Options")
+    top.resizable(False, False)
+    
+    def on_dropdown_change(*args):
+        text_op = default_text_op.get().lower().split(" ")
+    
+    def generate_wordcloud_btn_click():
+        if default_text_op.get() == "Top Tracks":
+            tracks = cache["tt-long_term"]
+            track_list = []
+            for t in tracks:
+                track_list.append(t['name'])
+            text = " ".join(track_list)
+        elif default_text_op.get() == "Top Artists":
+            artists = cache["ta-long_term"]
+            artist_list = []
+            for a in artists:
+                artist_list.append(a['name'])
+            text = " ".join(artist_list)
+        word_cloud_gen.generate(text, prefer_horizontal=slider.get())
+        
+    text_options = ["Top Tracks", "Top Artists", "Lyrics"]
+    default_text_op = tkinter.StringVar(option_frame)
+    default_text_op.trace("w", on_dropdown_change)
+    default_text_op.set(text_options[0])
+    text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
+    text_menu.grid(row=0, column=2, padx=5, pady=5)
+    slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
+    slider.set(0.6)
+    slider.grid(row=0, column=1, padx=5, pady=5)
+    generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
+                                      command=lambda: generate_wordcloud_btn_click())
+    generate_button.grid(row=0, column=0, padx=5, pady=5)
+    
 
 
 # Nathan TODO

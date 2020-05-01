@@ -136,7 +136,7 @@ def get_master_track_list():
         master_track_ids.add(item["track"]["id"])
         master_track_atts.add(item["track"]["name"] + "!" + item["track"]["artists"][0]["name"])
     # TODO Reroute this next method call to its own button on the word cloud GUI
-    get_bulk_song_lyrics(master_track_atts) # test for functionality. Need to create word cloud GUI
+#    get_bulk_song_lyrics(master_track_atts) # test for functionality. Need to create word cloud GUI
     return master_track_ids, master_track_atts
 
 
