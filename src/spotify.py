@@ -1,6 +1,6 @@
 # spotify.py
 # This is where we will write our methods using spotipy to interact with the Spotify API
-# LAST MODIFIED: 4/9/20
+# LAST MODIFIED: 5/1/20
 
 import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 import config  # Spotify API id's
@@ -12,7 +12,6 @@ __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOP
                                            client_secret=config.spotify_ids["client_secret"],
                                            redirect_uri="http://localhost/")
 #  If AUTH_TOKEN is legit...
-from genius import get_bulk_song_lyrics
 
 if __AUTH_TOKEN__:
     # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
@@ -73,7 +72,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
         to_remove = []
         for track in tracks:
             # if the song is in the user's library already...remove it
-            if track["id"] in master_track_ids or track["name"] + " " + track["artist"] in master_track_atts:
+            if track["id"] in master_track_ids or "<{}><{}>".format(track["name"], track["artist"]) in master_track_atts:
                 to_remove.append(track)
         # remove duplicates
         for track_rem in to_remove:
@@ -83,7 +82,7 @@ def create_recommended_playlist(name="song-alyze Recommendations", description="
             new_tracks = get_recommended_tracks(artists_seeds=artist_seeds, track_seeds=track_seeds, limit=limit)
             for new_track in new_tracks:
                 # if the track is not already in user's library...add it to the playlist
-                if (new_track["id"] not in master_track_ids) and (new_track not in tracks) and (len(tracks) < limit) and (new_track["name"] + " " + new_track["artist"] not in master_track_atts):
+                if (new_track["id"] not in master_track_ids) and (new_track not in tracks) and (len(tracks) < limit) and "<{}><{}>".format(new_track["name"], new_track["artist"]) not in master_track_atts:
                     tracks.append(new_track)
     create_playlist([track["id"] for track in tracks], name=name, description=description, public_playlist=public_playlist)
 
@@ -129,14 +128,12 @@ def get_master_track_list():
             # for each track in current playlist
             for s in sp.playlist_tracks(p, limit=100, offset=current_offset)["items"]:
                 master_track_ids.add(s["track"]["id"])
-                master_track_atts.add(s["track"]["name"] + "!" + s["track"]["artists"][0]["name"])
+                master_track_atts.add("<{}><{}>".format(s["track"]["name"], s["track"]["artists"][0]["name"]))
             current_offset += 100
     # loop through users saved tracks
     for item in sp.current_user_saved_tracks()["items"]:
         master_track_ids.add(item["track"]["id"])
-        master_track_atts.add(item["track"]["name"] + "!" + item["track"]["artists"][0]["name"])
-    # TODO Reroute this next method call to its own button on the word cloud GUI
-#    get_bulk_song_lyrics(master_track_atts) # test for functionality. Need to create word cloud GUI
+        master_track_atts.add("<{}><{}>".format(item["track"]["name"], item["track"]["artists"][0]["name"]))
     return master_track_ids, master_track_atts
 
 

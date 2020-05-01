@@ -1,7 +1,7 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 4/30/20
+# LAST MODIFIED: 5/1/20
 
 import spotify  # Local import of spotify.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
@@ -10,8 +10,7 @@ from tkinter import messagebox
 import ttkthemes
 import genius  # Local import of genius.py
 import word_cloud_gen # Local import of word_cloud_gen.py
-
-cache = {}  # Used to cache the results of API calls in main.py. USE THIS! See the "show_list" function as example.
+from cache import cache
 
 # Overall TODO:
 # Change theme of overall application. (4/30/20 - Tried and wasn't working)
@@ -199,15 +198,14 @@ def word_cloud_dialog():
     default_text_op.trace("w", on_dropdown_change)
     default_text_op.set(text_options[0])
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
-    text_menu.grid(row=0, column=2, padx=5, pady=5)
+    text_menu.grid(row=0, column=0, padx=5, pady=5)
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
-    slider.grid(row=0, column=1, padx=5, pady=5)
+    slider.grid(row=1, column=0, padx=5, pady=5)
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
                                       command=lambda: generate_wordcloud_btn_click())
-    generate_button.grid(row=0, column=0, padx=5, pady=5)
+    generate_button.grid(row=2, column=0, padx=5, pady=5)
     
-
 
 # Nathan TODO
 def gen_rec_playlist_dialog():
