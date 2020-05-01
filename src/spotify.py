@@ -153,3 +153,8 @@ def in_library(songs):
 # Returns a boolean
 def song_in_library(song):
     return in_library(song)[0]["in_lib"]
+
+
+def get_search_result(query):
+    res = sp.search(query, type="track", limit=1)["tracks"]["items"][0]
+    return {"name": res["name"], "type": res["type"], "id": res["id"], "artist": res["artists"][0]["name"], "artist_id": res["artists"][0]["id"]}

@@ -8,7 +8,6 @@ import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_g
 from tkinter import font as tkFont
 from tkinter import messagebox
 import ttkthemes
-import genius  # Local import of genius.py
 import word_cloud_gen # Local import of word_cloud_gen.py
 from cache import cache
 
@@ -45,7 +44,7 @@ def main():
     rec_btn = tkinter.Button(content_frame, text="Recommended Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                  command=lambda: show_dual_list_dialog("Rec"))
     gen_rec_playlist_btn = tkinter.Button(content_frame, text="Generate Recommended Playlist", width=btn_dim["w"],
-                                          height=btn_dim["h"])
+                                          height=btn_dim["h"], command=lambda: gen_rec_playlist_dialog())
     gen_wordcloud_btn = tkinter.Button(content_frame, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
                                        command=lambda: word_cloud_dialog())
     title_lbl.grid(row=0, column=0)
@@ -67,7 +66,7 @@ def show_dual_list_dialog(type):
 
     # Function to handle the create playlist button
     def create_playlist_btn_click(list):
-        spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your Top Tracks")
+        spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your {} Tracks".format(type))
         messagebox.showinfo("Success", "Playlist Created!")
 
     def on_dropdown_change(*args):
@@ -209,7 +208,73 @@ def word_cloud_dialog():
 
 # Nathan TODO
 def gen_rec_playlist_dialog():
-    print()
+    def num_option_change():
+        # TODO
+        print()
+
+    def gen_playlist():
+        # TODO
+        print()
+
+    top = tkinter.Toplevel()
+    top.grab_set()
+    top.title("Generate Recommended Playlist")
+    top.resizable(False, False)
+    frame1 = tkinter.Frame(top)
+    frame2 = tkinter.Frame(top)
+    frame1.grid(row=0, column=0)
+    frame2.grid(row=1, column=0)
+
+
+    name = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_name = tkinter.Label(frame1, text="Name: ")
+    lbl_name.grid(row=0, column=0)
+    name.grid(row=0, column=1, padx=10, pady=10)
+    lbl_des = tkinter.Label(frame1, text="Description: ")
+    lbl_des.grid(row=1, column=0)
+    des = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    des.grid(row=1, column=1, padx=10, pady=10)
+    lbl_pub = tkinter.Label(frame2, text="Public Playlist: ")
+    lbl_pub.grid(row=1, column=0)
+    pub = tkinter.Checkbutton(frame2)
+    pub.grid(row=1, column=1, padx=0, pady=10)
+    num_options = [10, 25, 50]
+    def_num_options = tkinter.StringVar(frame2)
+    def_num_options.trace("w", num_option_change())
+    def_num_options.set(num_options[2])
+    num = tkinter.OptionMenu(frame2, def_num_options, *num_options)
+    lbl_num = tkinter.Label(frame2, text="Songs: ")
+    lbl_num.grid(row=0, column=0)
+    num.grid(row=0, column=1, padx=0, pady=10)
+    seed1 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed1 = tkinter.Label(frame1, text="Track 1: ")
+    lbl_seed1.grid(row=3, column=0)
+    seed1.grid(row=3, column=1, padx=10, pady=10)
+    seed2 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed2 = tkinter.Label(frame1, text="Track 2: ")
+    lbl_seed2.grid(row=4, column=0)
+    seed2.grid(row=4, column=1, padx=10, pady=10)
+    seed3 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed3 = tkinter.Label(frame1, text="Track 3: ")
+    lbl_seed3.grid(row=5, column=0)
+    seed3.grid(row=5, column=1, padx=10, pady=10)
+    seed4 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed4 = tkinter.Label(frame1, text="Track 4: ")
+    lbl_seed4.grid(row=6, column=0)
+    seed4.grid(row=6, column=1, padx=10, pady=10)
+    seed5 = tkinter.Entry(frame1, justify=tkinter.CENTER)
+    lbl_seed5 = tkinter.Label(frame1, text="Track 5: ")
+    lbl_seed5.grid(row=7, column=0)
+    seed5.grid(row=7, column=1, padx=10, pady=10)
+    strict = tkinter.Checkbutton(frame2)
+    lbl_strict = tkinter.Label(frame2, text="Strict Mode: ")
+    lbl_strict.grid(row=2, column=0)
+    strict.grid(row=2, column=1, padx=0, pady=10)
+    gen_btn = tkinter.Button(top, text="Generate Playlist", command=lambda: gen_playlist())
+    gen_btn.grid(row=2, column=0, padx=10, pady=10)
+
+    top.mainloop()
+
 
 
 # this shit broken
