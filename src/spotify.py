@@ -124,7 +124,7 @@ def get_recommended_artists(time_range="long_term", limit=10):
 # Returns a set! Not a list!
 def get_master_track_list():
     master_track_ids = set()  # set of track id's in users library
-    master_track_atts = set()  # set of strings in the form "<title> <artist>" in users library
+    master_track_atts = set()  # set of strings in the form "<title><artist>" in users library
     # use set since we only want to know if a song is in the set. Gets the benefit of hashing.
     # O(1) time complexity and no duplicates
     playlist_ids = [p["id"] for p in sp.current_user_playlists()["items"]]
@@ -163,6 +163,21 @@ def song_in_library(song):
     return in_library(song)[0]["in_lib"]
 
 
+# Gets a track search result from Spotify
+# Returns a dictionary to represent the first search result
 def get_search_result(query):
     res = sp.search(query, type="track", limit=1)["tracks"]["items"][0]
     return {"name": res["name"], "type": res["type"], "id": res["id"], "artist": res["artists"][0]["name"], "artist_id": res["artists"][0]["id"]}
+
+
+# Returns a sorted tuple (Artist, Frequency) of the most seen artists in a users library
+def artist_count():
+    songs = get_master_track_list()[1]
+    print(len(songs))
+    dict = {}
+    for s in songs:
+        s = s[s.find(">")+1:]
+        a = s[s.find("<")+1:s.find(">")]
+        dict[a] = dict[a] + 1 if a in dict else 1
+    sort = sorted(dict.items(), reverse=True, key=lambda e: e[1])
+    return sort
