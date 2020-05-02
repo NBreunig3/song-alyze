@@ -1,6 +1,6 @@
 # spotify.py
 # This is where we will write our methods using spotipy to interact with the Spotify API
-# LAST MODIFIED: 5/1/20
+# LAST MODIFIED: 5/2/20
 
 import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 import config  # Spotify API id's
@@ -11,12 +11,14 @@ __SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-pla
 __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOPES__, client_id=config.spotify_ids["client_id"],
                                            client_secret=config.spotify_ids["client_secret"],
                                            redirect_uri="http://localhost/")
+print("Attempting Authentication with Spotify...")
 #  If AUTH_TOKEN is legit...
 
 if __AUTH_TOKEN__:
     # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
     global sp
     sp = spotipy.Spotify(auth=__AUTH_TOKEN__)
+    print("Connected to Spotify")
 else:
     print("Error with AUTH_TOKEN")
     exit()

@@ -1,6 +1,6 @@
 # genius.py
 # Uses the genius API to get lyrics of songs
-# LAST MODIFIED: 5/1/20
+# LAST MODIFIED: 5/2/20
 
 import lyricsgenius
 import config
@@ -9,7 +9,9 @@ import spotify
 from cache import cache
 
 # authorizes user using client id that is stored in config
+print("Connecting to Genius Lyrics...")
 genius = lyricsgenius.Genius(config.genius_ids['client_id'])
+print("Connected to Genius")
 
 
 def get_song_lyric_freq(song_name, song_artist):

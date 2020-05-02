@@ -1,9 +1,10 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 5/1/20
+# LAST MODIFIED: 5/2/20
 
 import spotify  # Local import of spotify.py
+import genius  # Local import of genius.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
 from tkinter import font as tkFont
 from tkinter import messagebox
@@ -13,13 +14,10 @@ from tkinter import filedialog as fd
 import os
 from cache import cache
 
-# Overall TODO:
-# Change theme of overall application. (4/30/20 - Tried and wasn't working)
-# Finish the word_cloud_dialog function (see comments on that function for details)
-
 
 def main():
     # Beginning of GUI
+    print("Building GUI...")
     main_window = tkinter.Tk(screenName="song-alyze")
     main_window.title("song-alyze")
     main_window.resizable(False, False)
@@ -55,7 +53,7 @@ def main():
     rec_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_rec_playlist_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_wordcloud_btn.grid(row=1, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
-    #spotify.get_master_track_list()
+    print("Done!")
     main_window.mainloop()
 
 
@@ -155,7 +153,6 @@ def show_dual_list_dialog(type):
     top.mainloop()
 
 
-
 # Function should display an options pop up window to select the method of word cloud generation
 #   A button called generate should be at the button of the winow. Will take all the parameters
 #   from above into account and generate the respective word cloud
@@ -240,7 +237,7 @@ def word_cloud_dialog():
     generate_button.grid(row=0, column=4, padx=5, pady=5)
     
 
-# Nathan TODO
+# Function to show a dialog to for the "Generate Rec Playlist" button
 def gen_rec_playlist_dialog():
     def gen_playlist():
         def handle_seeds(seed):
@@ -297,23 +294,23 @@ def gen_rec_playlist_dialog():
     pub = tkinter.Checkbutton(frame2, variable=pub_checked)
     pub.grid(row=1, column=1, padx=0, pady=10)
     seed1 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed1 = tkinter.Label(frame1, text="Track 1: ")
+    lbl_seed1 = tkinter.Label(frame1, text="Seed 1: ")
     lbl_seed1.grid(row=3, column=0)
     seed1.grid(row=3, column=1, padx=10, pady=10)
     seed2 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed2 = tkinter.Label(frame1, text="Track 2: ")
+    lbl_seed2 = tkinter.Label(frame1, text="Seed 2: ")
     lbl_seed2.grid(row=4, column=0)
     seed2.grid(row=4, column=1, padx=10, pady=10)
     seed3 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed3 = tkinter.Label(frame1, text="Track 3: ")
+    lbl_seed3 = tkinter.Label(frame1, text="Seed 3: ")
     lbl_seed3.grid(row=5, column=0)
     seed3.grid(row=5, column=1, padx=10, pady=10)
     seed4 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed4 = tkinter.Label(frame1, text="Track 4: ")
+    lbl_seed4 = tkinter.Label(frame1, text="Seed 4: ")
     lbl_seed4.grid(row=6, column=0)
     seed4.grid(row=6, column=1, padx=10, pady=10)
     seed5 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed5 = tkinter.Label(frame1, text="Track 5: ")
+    lbl_seed5 = tkinter.Label(frame1, text="Seed 5: ")
     lbl_seed5.grid(row=7, column=0)
     seed5.grid(row=7, column=1, padx=10, pady=10)
     strict_checked = tkinter.IntVar()
@@ -325,7 +322,6 @@ def gen_rec_playlist_dialog():
     gen_btn.grid(row=2, column=0, padx=10, pady=10)
 
     top.mainloop()
-
 
 
 # this shit broken
