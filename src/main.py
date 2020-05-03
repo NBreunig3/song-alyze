@@ -237,7 +237,6 @@ def word_cloud_dialog():
             if goodfont:
                 word_cloud_gen.generate(string_of_lyrics, prefer_horizontal=slider.get(), back_color=defualt_color_op.get(), font_path=font)
 
-
     # Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
     default_text_op = tkinter.StringVar(option_frame)
