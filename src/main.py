@@ -70,11 +70,11 @@ def show_dual_list_dialog(type):
         messagebox.showinfo("Success", "Playlist Created!")
     
     def play_playlist_btn_click(list):
-        uris = []
+        ids = []
         for t in list:
-            uri = "spotify:track:" + t["id"]
-            uris.append(uri)
-        spotify.play_songs(uris)
+            id = t["id"]
+            ids.append(id)
+        spotify.play_songs(ids)
 
     def on_dropdown_change(*args):
         tf = default_timeframe_option.get().lower().split(" ")

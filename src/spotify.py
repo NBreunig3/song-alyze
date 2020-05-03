@@ -182,5 +182,10 @@ def artist_count():
     sort = sorted(dict.items(), reverse=True, key=lambda e: e[1])
     return sort
 
-def play_songs(uri_list):
+#Given a list of song ids, starts playing those songs on the device you were last listening on
+def play_songs(id_list):
+    uri_list = []
+    for i in id_list:
+        uri = "spotify:track:" + i
+        uri_list.append(uri)
     sp.start_playback(uris=uri_list)
