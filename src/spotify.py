@@ -6,7 +6,7 @@ import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2
 import config  # Spotify API id's
 
 # Various scopes to get access to. View scopes here: https://developer.spotify.com/documentation/general/guides/scopes/
-__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public user-library-read"  # Should not be changed after this line
+__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public user-library-read user-modify-playback-state"  # Should not be changed after this line
 # Authorization token specific to the users account
 __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOPES__, client_id=config.spotify_ids["client_id"],
                                            client_secret=config.spotify_ids["client_secret"],
@@ -181,3 +181,6 @@ def artist_count():
         dict[a] = dict[a] + 1 if a in dict else 1
     sort = sorted(dict.items(), reverse=True, key=lambda e: e[1])
     return sort
+
+def play_songs(uri_list):
+    sp.start_playback(uris=uri_list)

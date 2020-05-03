@@ -68,6 +68,13 @@ def show_dual_list_dialog(type):
     def create_playlist_btn_click(list):
         spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your {} Tracks".format(type))
         messagebox.showinfo("Success", "Playlist Created!")
+    
+    def play_playlist_btn_click(list):
+        uris = []
+        for t in list:
+            uri = "spotify:track:" + t["id"]
+            uris.append(uri)
+        spotify.play_songs(uris)
 
     def on_dropdown_change(*args):
         tf = default_timeframe_option.get().lower().split(" ")
@@ -148,6 +155,9 @@ def show_dual_list_dialog(type):
     default_num_option.set(number_options[2])
     number_menu = tkinter.OptionMenu(option_frame, default_num_option, *number_options)
     number_menu.grid(row=0, column=2, padx=5, pady=5)
+    gen_playlist_btn = tkinter.Button(option_frame, text="Play Playlist", width=15, height=1,
+                                      command=lambda: play_playlist_btn_click(cache["cur"]))
+    gen_playlist_btn.grid(row=0, column=3, padx=5, pady=5)
 
     center_in_screen(top)
     top.mainloop()
@@ -176,26 +186,29 @@ def word_cloud_dialog():
             font = os.path.dirname(os.path.abspath(font))
         else:
             font = "../res/fonts/"+font+".ttf"
-            
+          
+        time_frame = default_timeframe_option.get().lower().split(" ")
+        time_frame = "_".join(time_frame)
+        
         # create word cloud based on top tracks
         if default_text_op.get() == "Top Tracks":
             # creates list of top track long term in not in the cache
-            tracks = spotify.get_top_tracks(limit=50, time_range="long_term") if not "tt-long_term" in cache else cache["tt-long_term"]
-            cache["tt-long_term"] = tracks
+            tracks = spotify.get_top_tracks(limit=50, time_range=time_frame) if not "tt-" + time_frame in cache else cache["tt-" + time_frame]
+            cache["tt-" + time_frame] = tracks
             #creates list of song names
             track_list = []
             for t in tracks:
                 track_list.append(t['name'])
             text = " ".join(track_list)
-            word_cloud_gen.generate(tracks, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+            word_cloud_gen.generate(text, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
         # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
             # creates list of top artists if not in the cache
-            artists = spotify.get_top_artists(limit=50, time_range="long_term") if not "ta-long_term" in cache else cache[
-                "ta-long_term"]
-            cache["ta-long_term"] = artists
+            artists = spotify.get_top_artists(limit=50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
+                "ta-" + time_frame]
+            cache["ta-" + time_frame] = artists
             #create list of artist names
-            artists = cache["ta-long_term"]
+            artists = cache["ta-" + time_frame]
             artists.reverse()
             artist_list = {}
             for a in range(len(artists)):
@@ -210,13 +223,21 @@ def word_cloud_dialog():
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
     text_menu.grid(row=0, column=0, padx=5, pady=5)
     
+    #Time frame drop down menu
+    time_frame_options = ["Short Term", "Medium Term", "Long Term"]
+    default_timeframe_option = tkinter.StringVar(option_frame)
+    default_timeframe_option.trace("w", on_dropdown_change)
+    default_timeframe_option.set(time_frame_options[2])
+    time_frame_menu = tkinter.OptionMenu(option_frame, default_timeframe_option, *time_frame_options)
+    time_frame_menu.grid(row=0, column=1, padx=5, pady=5)
+    
     #Color drop down menu
     color_options = ["black", "white", "blue", "magenta", "green", "random"]
     default_color_op = tkinter.StringVar(option_frame)
     default_color_op.trace("w", on_dropdown_change)
     default_color_op.set(color_options[0])
     color_menu = tkinter.OptionMenu(option_frame, default_color_op, *color_options)
-    color_menu.grid(row=0, column=1, padx=5, pady=5)
+    color_menu.grid(row=0, column=2, padx=5, pady=5)
     
     #Font drop down menu
     font_options = ["Marvind", "AlphaMusicMan", "Select local font"]
@@ -224,12 +245,12 @@ def word_cloud_dialog():
     default_font_op.trace("w", on_dropdown_change)
     default_font_op.set(font_options[0])
     font_menu = tkinter.OptionMenu(option_frame, default_font_op, *font_options)
-    font_menu.grid(row=0, column=2, padx=5, pady=5)
+    font_menu.grid(row=0, column=3, padx=5, pady=5)
     
     # slider to adjust horizontal scale
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
-    slider.grid(row=0, column=3, padx=5, pady=5)
+    slider.grid(row=0, column=4, padx=5, pady=5)
     
     #generate word cloud button
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
