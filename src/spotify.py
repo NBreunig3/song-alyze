@@ -1,22 +1,24 @@
 # spotify.py
 # This is where we will write our methods using spotipy to interact with the Spotify API
-# LAST MODIFIED: 5/1/20
+# LAST MODIFIED: 5/2/20
 
 import spotipy  # Documentation for spotipy: https://spotipy.readthedocs.io/en/2.9.0/
 import config  # Spotify API id's
 
 # Various scopes to get access to. View scopes here: https://developer.spotify.com/documentation/general/guides/scopes/
-__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public user-library-read"  # Should not be changed after this line
+__SPOTIFY_SCOPES__ = "user-top-read playlist-read-private user-read-recently-played playlist-modify-private playlist-modify-public user-library-read user-modify-playback-state"  # Should not be changed after this line
 # Authorization token specific to the users account
 __AUTH_TOKEN__ = spotipy.prompt_for_user_token(username="", scope=__SPOTIFY_SCOPES__, client_id=config.spotify_ids["client_id"],
                                            client_secret=config.spotify_ids["client_secret"],
                                            redirect_uri="http://localhost/")
+print("Attempting Authentication with Spotify...")
 #  If AUTH_TOKEN is legit...
 
 if __AUTH_TOKEN__:
     # Use sp to call Spotify API functions. List of API endpoints: https://developer.spotify.com/documentation/web-api/reference/
     global sp
     sp = spotipy.Spotify(auth=__AUTH_TOKEN__)
+    print("Connected to Spotify")
 else:
     print("Error with AUTH_TOKEN")
     exit()
@@ -122,7 +124,7 @@ def get_recommended_artists(time_range="long_term", limit=10):
 # Returns a set! Not a list!
 def get_master_track_list():
     master_track_ids = set()  # set of track id's in users library
-    master_track_atts = set()  # set of strings in the form "<title> <artist>" in users library
+    master_track_atts = set()  # set of strings in the form "<title><artist>" in users library
     # use set since we only want to know if a song is in the set. Gets the benefit of hashing.
     # O(1) time complexity and no duplicates
     playlist_ids = [p["id"] for p in sp.current_user_playlists()["items"]]
@@ -161,6 +163,29 @@ def song_in_library(song):
     return in_library(song)[0]["in_lib"]
 
 
+# Gets a track search result from Spotify
+# Returns a dictionary to represent the first search result
 def get_search_result(query):
     res = sp.search(query, type="track", limit=1)["tracks"]["items"][0]
     return {"name": res["name"], "type": res["type"], "id": res["id"], "artist": res["artists"][0]["name"], "artist_id": res["artists"][0]["id"]}
+
+
+# Returns a sorted tuple (Artist, Frequency) of the most seen artists in a users library
+def artist_count():
+    songs = get_master_track_list()[1]
+    print(len(songs))
+    dict = {}
+    for s in songs:
+        s = s[s.find(">")+1:]
+        a = s[s.find("<")+1:s.find(">")]
+        dict[a] = dict[a] + 1 if a in dict else 1
+    sort = sorted(dict.items(), reverse=True, key=lambda e: e[1])
+    return sort
+
+#Given a list of song ids, starts playing those songs on the device you were last listening on
+def play_songs(id_list):
+    uri_list = []
+    for i in id_list:
+        uri = "spotify:track:" + i
+        uri_list.append(uri)
+    sp.start_playback(uris=uri_list)

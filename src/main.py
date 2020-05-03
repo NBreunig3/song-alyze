@@ -1,9 +1,10 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 5/1/20
+# LAST MODIFIED: 5/2/20
 
 import spotify  # Local import of spotify.py
+import genius  # Local import of genius.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
 from tkinter import font as tkFont
 from tkinter import messagebox
@@ -13,13 +14,10 @@ from tkinter import filedialog as fd
 import os
 from cache import cache
 
-# Overall TODO:
-# Change theme of overall application. (4/30/20 - Tried and wasn't working)
-# Finish the word_cloud_dialog function (see comments on that function for details)
-
 
 def main():
     # Beginning of GUI
+    print("Building GUI...")
     main_window = tkinter.Tk(screenName="song-alyze")
     main_window.title("song-alyze")
     main_window.resizable(False, False)
@@ -55,7 +53,7 @@ def main():
     rec_btn.grid(row=0, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_rec_playlist_btn.grid(row=1, column=0, padx=btn_pad["x"], pady=btn_pad["y"])
     gen_wordcloud_btn.grid(row=1, column=1, padx=btn_pad["x"], pady=btn_pad["y"])
-    #spotify.get_master_track_list()
+    print("Done!")
     main_window.mainloop()
 
 
@@ -70,6 +68,13 @@ def show_dual_list_dialog(type):
     def create_playlist_btn_click(list):
         spotify.create_playlist([list[i]["id"] for i in range(int(default_num_option.get()))], name="Your {} Tracks".format(type))
         messagebox.showinfo("Success", "Playlist Created!")
+    
+    def play_playlist_btn_click(list):
+        ids = []
+        for t in list:
+            id = t["id"]
+            ids.append(id)
+        spotify.play_songs(ids)
 
     def on_dropdown_change(*args):
         tf = default_timeframe_option.get().lower().split(" ")
@@ -150,10 +155,12 @@ def show_dual_list_dialog(type):
     default_num_option.set(number_options[2])
     number_menu = tkinter.OptionMenu(option_frame, default_num_option, *number_options)
     number_menu.grid(row=0, column=2, padx=5, pady=5)
+    gen_playlist_btn = tkinter.Button(option_frame, text="Play Playlist", width=15, height=1,
+                                      command=lambda: play_playlist_btn_click(cache["cur"]))
+    gen_playlist_btn.grid(row=0, column=3, padx=5, pady=5)
 
     center_in_screen(top)
     top.mainloop()
-
 
 
 # Function should display an options pop up window to select the method of word cloud generation
@@ -179,12 +186,15 @@ def word_cloud_dialog():
             font = os.path.dirname(os.path.abspath(font))
         else:
             font = "../res/fonts/"+font+".ttf"
-            
+          
+        time_frame = default_timeframe_option.get().lower().split(" ")
+        time_frame = "_".join(time_frame)
+        
         # create word cloud based on top tracks
         if default_text_op.get() == "Top Tracks":
             # creates list of top track long term in not in the cache
-            tracks = spotify.get_top_tracks(limit=50, time_range="long_term") if not "tt-long_term" in cache else cache["tt-long_term"]
-            cache["tt-long_term"] = tracks
+            tracks = spotify.get_top_tracks(limit=50, time_range=time_frame) if not "tt-" + time_frame in cache else cache["tt-" + time_frame]
+            cache["tt-" + time_frame] = tracks
             #creates list of song names
             track_list = []
             for t in tracks:
@@ -194,11 +204,11 @@ def word_cloud_dialog():
         # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
             # creates list of top artists if not in the cache
-            artists = spotify.get_top_artists(limit=50, time_range="long_term") if not "ta-long_term" in cache else cache[
-                "ta-long_term"]
-            cache["ta-long_term"] = artists
+            artists = spotify.get_top_artists(limit=50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
+                "ta-" + time_frame]
+            cache["ta-" + time_frame] = artists
             #create list of artist names
-            artists = cache["ta-long_term"]
+            artists = cache["ta-" + time_frame]
             artists.reverse()
             artist_list = {}
             for a in range(len(artists)):
@@ -214,13 +224,21 @@ def word_cloud_dialog():
     text_menu = tkinter.OptionMenu(option_frame, default_text_op, *text_options)
     text_menu.grid(row=0, column=0, padx=5, pady=5)
     
+    #Time frame drop down menu
+    time_frame_options = ["Short Term", "Medium Term", "Long Term"]
+    default_timeframe_option = tkinter.StringVar(option_frame)
+    default_timeframe_option.trace("w", on_dropdown_change)
+    default_timeframe_option.set(time_frame_options[2])
+    time_frame_menu = tkinter.OptionMenu(option_frame, default_timeframe_option, *time_frame_options)
+    time_frame_menu.grid(row=0, column=1, padx=5, pady=5)
+    
     #Color drop down menu
     color_options = ["black", "white", "blue", "magenta", "green", "random"]
     default_color_op = tkinter.StringVar(option_frame)
     default_color_op.trace("w", on_dropdown_change)
     default_color_op.set(color_options[0])
     color_menu = tkinter.OptionMenu(option_frame, default_color_op, *color_options)
-    color_menu.grid(row=0, column=1, padx=5, pady=5)
+    color_menu.grid(row=0, column=2, padx=5, pady=5)
     
     #Font drop down menu
     font_options = ["Marvind", "AlphaMusicMan", "Select local font"]
@@ -228,12 +246,12 @@ def word_cloud_dialog():
     default_font_op.trace("w", on_dropdown_change)
     default_font_op.set(font_options[0])
     font_menu = tkinter.OptionMenu(option_frame, default_font_op, *font_options)
-    font_menu.grid(row=0, column=2, padx=5, pady=5)
+    font_menu.grid(row=0, column=3, padx=5, pady=5)
     
     # slider to adjust horizontal scale
     slider = tkinter.Scale(option_frame, from_=0.0, to=1.0, resolution=0.1, label = "Horizontal Scale", length = 200, orient='horizontal')
     slider.set(0.6)
-    slider.grid(row=0, column=3, padx=5, pady=5)
+    slider.grid(row=0, column=4, padx=5, pady=5)
     
     #generate word cloud button
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
@@ -241,7 +259,7 @@ def word_cloud_dialog():
     generate_button.grid(row=0, column=4, padx=5, pady=5)
     
 
-# Nathan TODO
+# Function to show a dialog to for the "Generate Rec Playlist" button
 def gen_rec_playlist_dialog():
     def gen_playlist():
         def handle_seeds(seed):
@@ -298,23 +316,23 @@ def gen_rec_playlist_dialog():
     pub = tkinter.Checkbutton(frame2, variable=pub_checked)
     pub.grid(row=1, column=1, padx=0, pady=10)
     seed1 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed1 = tkinter.Label(frame1, text="Track 1: ")
+    lbl_seed1 = tkinter.Label(frame1, text="Seed 1: ")
     lbl_seed1.grid(row=3, column=0)
     seed1.grid(row=3, column=1, padx=10, pady=10)
     seed2 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed2 = tkinter.Label(frame1, text="Track 2: ")
+    lbl_seed2 = tkinter.Label(frame1, text="Seed 2: ")
     lbl_seed2.grid(row=4, column=0)
     seed2.grid(row=4, column=1, padx=10, pady=10)
     seed3 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed3 = tkinter.Label(frame1, text="Track 3: ")
+    lbl_seed3 = tkinter.Label(frame1, text="Seed 3: ")
     lbl_seed3.grid(row=5, column=0)
     seed3.grid(row=5, column=1, padx=10, pady=10)
     seed4 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed4 = tkinter.Label(frame1, text="Track 4: ")
+    lbl_seed4 = tkinter.Label(frame1, text="Seed 4: ")
     lbl_seed4.grid(row=6, column=0)
     seed4.grid(row=6, column=1, padx=10, pady=10)
     seed5 = tkinter.Entry(frame1, justify=tkinter.CENTER)
-    lbl_seed5 = tkinter.Label(frame1, text="Track 5: ")
+    lbl_seed5 = tkinter.Label(frame1, text="Seed 5: ")
     lbl_seed5.grid(row=7, column=0)
     seed5.grid(row=7, column=1, padx=10, pady=10)
     strict_checked = tkinter.IntVar()
@@ -326,7 +344,6 @@ def gen_rec_playlist_dialog():
     gen_btn.grid(row=2, column=0, padx=10, pady=10)
 
     top.mainloop()
-
 
 
 # this shit broken
