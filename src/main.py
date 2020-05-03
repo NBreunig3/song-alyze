@@ -207,15 +207,29 @@ def word_cloud_dialog():
             artists = spotify.get_top_artists(limit=50, time_range=time_frame) if not "ta-" + time_frame in cache else cache[
                 "ta-" + time_frame]
             cache["ta-" + time_frame] = artists
-            #create list of artist names
+            # create list of artist names
             artists = cache["ta-" + time_frame]
             artists.reverse()
             artist_list = {}
             for a in range(len(artists)):
                 artist_list[artists[a]['name']] = a
             word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
-        
-    #Content drop down menu
+        elif default_text_op.get() == "Lyrics":
+            dict = genius.get_top_song_lyric_freq(time_frame)
+            # dict = genius.get_song_lyric_freq("Help Me Rhonda", "The Beach Boys")
+            # sort dict by frequency
+            sort = sorted(dict, key=lambda x: dict[x], reverse=True)
+            # limit to the top 200 words
+            sort = sort[:200]
+            string_of_lyrics = ""
+            # convert to a space separated string
+            for x in sort:
+                string_of_lyrics += " " + x
+            # generate the word cloud
+            word_cloud_gen.generate(string_of_lyrics)
+
+
+    # Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
     default_text_op = tkinter.StringVar(option_frame)
     default_text_op.trace("w", on_dropdown_change)
