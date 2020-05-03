@@ -181,9 +181,15 @@ def word_cloud_dialog():
     # user has selected to generate word cloud
     def generate_wordcloud_btn_click():
         font = default_font_op.get()
+        goodfont = True
         if font == "Select local font":
             font = fd.askopenfilename()
-            font = os.path.dirname(os.path.abspath(font))
+            font = os.path.abspath(font)
+            if font.endswith(".otf") or font.endswith(".ttf"):
+                font = os.path.abspath(font)
+            else: 
+                messagebox.showinfo("Wordcloud Error", "Please choose a valid font.")
+                goodfont = False
         else:
             font = "../res/fonts/"+font+".ttf"
           
@@ -200,7 +206,8 @@ def word_cloud_dialog():
             for t in tracks:
                 track_list.append(t['name'])
             text = " ".join(track_list)
-            word_cloud_gen.generate(text, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+            if goodfont:
+                word_cloud_gen.generate(text, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
         # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
             # creates list of top artists if not in the cache
@@ -213,8 +220,11 @@ def word_cloud_dialog():
             artist_list = {}
             for a in range(len(artists)):
                 artist_list[artists[a]['name']] = a
-            word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
-        elif default_text_op.get() == "Lyrics"
+            if goodfont:
+                word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+        elif default_text_op.get() == "Lyrics":
+            print()
+            # nada
         
     #Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
@@ -256,7 +266,7 @@ def word_cloud_dialog():
     #generate word cloud button
     generate_button = tkinter.Button(option_frame, text="Generate Word Cloud", width=20, height=2,
                                       command=lambda: generate_wordcloud_btn_click())
-    generate_button.grid(row=0, column=4, padx=5, pady=5)
+    generate_button.grid(row=0, column=5, padx=5, pady=5)
     
 
 # Function to show a dialog to for the "Generate Rec Playlist" button
