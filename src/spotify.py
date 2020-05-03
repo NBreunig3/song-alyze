@@ -142,6 +142,7 @@ def get_master_track_list():
     for item in sp.current_user_saved_tracks()["items"]:
         master_track_ids.add(item["track"]["id"])
         master_track_atts.add("<{}><{}>".format(item["track"]["name"], item["track"]["artists"][0]["name"]))
+    print(master_track_atts)
     return master_track_ids, master_track_atts
 
 

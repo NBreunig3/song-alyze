@@ -30,7 +30,6 @@ def get_top_song_lyric_freq(time_range="long_term", limit=10):
         if url is not None:
             lyrics += genius._clean_str(genius._scrape_song_lyrics_from_url(url))
             lyrics += " "
-            print(lyrics)
     return word_freqs(lyrics)
 
 
@@ -38,7 +37,9 @@ def get_top_song_lyric_freq(time_range="long_term", limit=10):
 # Returns a dictionary mapping a string to a integer frequency
 def word_freqs(string):
     # Used to omit the follow words from word cloud generation
-    __exclude_words__ = "a the an to in for of or by with is on this that be who where i im youre you are ill and "
+    __exclude_words__ = "a the an to in for of or by with is on this that be who where i im youre you are ill and " \
+                        "me we it there out your all can if have do only but any not he what when they been how now get" \
+                        "got like okay rapes rape fuck shit ass "
     common_words = set(x for x in __exclude_words__.split(" "))
     punc = ",./?!()-\"\';"
     dict = {}
@@ -56,6 +57,7 @@ def word_freqs(string):
     string = new_str
     string = string.replace("chorus", "")
     string = string.replace("verse", "")
+    string = string.replace("refrain", "")
     for i in range(5):
         string = string.replace("verse {}".format(i), "")
     string = string.replace("bridge", "")
@@ -74,7 +76,7 @@ def word_freqs(string):
 
 
 # Function should search by the parameter song_name and artist_name and return the lyrics
-def get_lyrics_url(song_name="Rap God", song_artist="Eminem"):
+def get_lyrics_url(song_name="25 Or 6 To 4", song_artist="Chicago"):
     base_url = "https://api.genius.com"
     headers = {'Authorization': 'Bearer 4VCfSDiSstA8ZzJd9Z5rFPNoODBR8XT13e_5uHeLOWqkmWzApPiNa-MYnYH_wOlq'}
     search_url = base_url + "/search"
@@ -114,6 +116,10 @@ def get_bulk_lyric_freq():
                 else:
                     master_word_dict[lyric] = 1
     return master_word_dict
+
+
+def get_lyrics_from_time_frame(time_frame):
+    print('do something here')
 
 
 
