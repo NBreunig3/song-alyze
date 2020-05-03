@@ -190,7 +190,7 @@ def word_cloud_dialog():
             for t in tracks:
                 track_list.append(t['name'])
             text = " ".join(track_list)
-            word_cloud_gen.generate(tracks, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+            word_cloud_gen.generate(text, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
         # create word cloud based on top artists
         elif default_text_op.get() == "Top Artists":
             # creates list of top artists if not in the cache
@@ -204,6 +204,7 @@ def word_cloud_dialog():
             for a in range(len(artists)):
                 artist_list[artists[a]['name']] = a
             word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
+        elif default_text_op.get() == "Lyrics"
         
     #Content drop down menu
     text_options = ["Top Tracks", "Top Artists", "Lyrics"]
