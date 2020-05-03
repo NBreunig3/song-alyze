@@ -226,7 +226,7 @@ def word_cloud_dialog():
             for x in sort:
                 string_of_lyrics += " " + x
             # generate the word cloud
-            word_cloud_gen.generate(string_of_lyrics)
+            word_cloud_gen.generate(string_of_lyrics, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
 
 
     # Content drop down menu
