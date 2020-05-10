@@ -183,6 +183,7 @@ def artist_count():
     sort = sorted(dict.items(), reverse=True, key=lambda e: e[1])
     return sort
 
+
 #Given a list of song ids, starts playing those songs on the device you were last listening on
 def play_songs(id_list):
     uri_list = []

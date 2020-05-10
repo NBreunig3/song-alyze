@@ -1,6 +1,6 @@
 # genius.py
 # Uses the genius API to get lyrics of songs
-# LAST MODIFIED: 5/2/20
+# LAST MODIFIED: 5/10/20
 
 import lyricsgenius
 import config
@@ -39,9 +39,8 @@ def word_freqs(string):
     # Used to omit the follow words from word cloud generation
     __exclude_words__ = "a the an to in for of or by with is on this that be who where i im youre you are ill and " \
                         "me we it there out your all can if have do only but any not he what when they been how now get" \
-                        "got like okay rapes rape fuck shit ass "
+                        "got like okay"
     common_words = set(x for x in __exclude_words__.split(" "))
-    punc = ",./?!()-\"\';"
     dict = {}
 
     string = string.replace("\n", " ")
@@ -65,7 +64,7 @@ def word_freqs(string):
 
     # remove special chars and count words
     for word in words:
-        if word not in common_words:
+        if word not in common_words and len(word) > 0:
             if word[len(word)-1] == "s":
                 word = word[:len(word)-1]
             if word in dict:

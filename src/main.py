@@ -1,20 +1,22 @@
 # song-alyze
 # main.py
 # Authors: Nathan Breunig, Kylei Hoffland, Giannia Lammer, Jon Noel
-# LAST MODIFIED: 5/2/20
+# LAST MODIFIED: 5/10/20
 
 import spotify  # Local import of spotify.py
 import genius  # Local import of genius.py
 import tkinter  # GUI  Reference: https://www.tutorialspoint.com/python/python_gui_programming.htm
-from tkinter import font as tkFont
-from tkinter import messagebox
-import ttkthemes
-import word_cloud_gen # Local import of word_cloud_gen.py
-from tkinter import filedialog as fd
+from tkinter import font as tkFont  # tkinter fonts
+from tkinter import messagebox  # tkinter message box
+import ttkthemes  # tkinter themes
+import word_cloud_gen  # Local import of word_cloud_gen.py
+from tkinter import filedialog as fd  # tkinter file dialog
 import os
-from cache import cache
+from cache import cache  # Used to cache API calls
 
 
+# Main function
+# Builds and sets up GUI
 def main():
     # Beginning of GUI
     print("Building GUI...")
@@ -22,7 +24,7 @@ def main():
     main_window.title("song-alyze")
     main_window.resizable(False, False)
     theme = ttkthemes.ThemedStyle(main_window)
-    theme.theme_use("arc")  # not working (4/30_
+    theme.theme_use("arc")  # Never got this to work. Not sure why
     info_frame = tkinter.Frame(main_window)
     content_frame = tkinter.Frame(main_window)
     info_frame.grid(row=0, column=0)
@@ -33,18 +35,23 @@ def main():
     btn_dim = {"w": 30, "h": 5}
     btn_pad = {"x": 10, "y": 10}
 
+    # Welcome label
     wel_lbl_txt = tkinter.StringVar()
     wel_lbl_txt.set("Welcome {}".format(spotify.sp.current_user()["display_name"]))
     wel_lbl = tkinter.Label(info_frame, textvariable=wel_lbl_txt)
     tit_lbl_txt = tkinter.StringVar()
     tit_lbl_txt.set("song-alyze")
     title_lbl = tkinter.Label(info_frame, textvariable=tit_lbl_txt, font=("Segoe UI Bold", 14))
+    # Top Tracks & Artists button
     top_btn = tkinter.Button(content_frame, text="Top Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                     command=lambda: show_dual_list_dialog("Top"))
+    # Rec Tracks & Artists button
     rec_btn = tkinter.Button(content_frame, text="Recommended Tracks & Artists", width=btn_dim["w"], height=btn_dim["h"],
                                  command=lambda: show_dual_list_dialog("Rec"))
+    # Generate Rec Playlist button
     gen_rec_playlist_btn = tkinter.Button(content_frame, text="Generate Recommended Playlist", width=btn_dim["w"],
                                           height=btn_dim["h"], command=lambda: gen_rec_playlist_dialog())
+    # Word cloud button
     gen_wordcloud_btn = tkinter.Button(content_frame, text="Generate Word Cloud", width=btn_dim["w"], height=btn_dim["h"],
                                        command=lambda: word_cloud_dialog())
     title_lbl.grid(row=0, column=0)
@@ -223,7 +230,8 @@ def word_cloud_dialog():
             if goodfont:
                 word_cloud_gen.generate_from_frequencies(artist_list, prefer_horizontal=slider.get(), back_color=default_color_op.get(),font_path=font)
         elif default_text_op.get() == "Lyrics":
-            dict = genius.get_top_song_lyric_freq(time_frame)
+            messagebox.showinfo(title="Please wait", message="Generating...please wait a few seconds.")
+            dict = genius.get_top_song_lyric_freq(time_range=time_frame, limit=10)
             # dict = genius.get_song_lyric_freq("Help Me Rhonda", "The Beach Boys")
             # sort dict by frequency
             sort = sorted(dict, key=lambda x: dict[x], reverse=True)
@@ -367,7 +375,7 @@ def gen_rec_playlist_dialog():
     top.mainloop()
 
 
-# this shit broken
+# this s*** broken
 # I no good at maths, maybe someone cold figure it out lol
 # I no use GUI, GUI is the devil
 def center_in_screen(window):
