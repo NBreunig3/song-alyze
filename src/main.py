@@ -374,10 +374,8 @@ def gen_rec_playlist_dialog():
 
     top.mainloop()
 
-
-# this s*** broken
-# I no good at maths, maybe someone cold figure it out lol
-# I no use GUI, GUI is the devil
+    
+# not working
 def center_in_screen(window):
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
